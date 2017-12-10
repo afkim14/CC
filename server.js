@@ -20,12 +20,15 @@ io.on('connection', function(socket){
   socket.on('new room', function(roomTitle) {
     var newRoom = setup.createRoom(roomTitle, users[socket.id]);
     rooms.push(newRoom);
-    console.log(rooms);
+    //console.log(rooms);
   });
 
   // TODO: Fix
   socket.on('disconnect', function() {
-    console.log(socket.id + " has left the server.");
+    if (socket.id in users) {
+      console.log(socket.id + " has left the server.");
+      delete users[socket.id];
+    }
   });
 });
 

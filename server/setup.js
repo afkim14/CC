@@ -6,9 +6,6 @@ module.exports = {
     var newUser = new User(username, socketid);
     return newUser;
   },
-  removeUser: function () {
-    // whatever
-  },
   createRoom: function (roomName, owner) {
     var newRoom = new Room(roomName, owner);
     return newRoom;
