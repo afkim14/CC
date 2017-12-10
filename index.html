@@ -4,17 +4,12 @@
     <title>CC</title>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="client/client.js"></script>
   </head>
   <body>
+    <div id="content"></div>
     <p>username:</p>
     <input type="text" id="username"><br>
     <button onClick="sendUsernameToServer()">Submit</button>
-    <script>
-      function sendUsernameToServer() {
-        var socket = io();
-        socket.emit('new user', $('#username').val());
-        return;
-      };
-    </script>
   </body>
 </html>

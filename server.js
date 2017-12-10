@@ -12,15 +12,15 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   socket.on('new user', function(username) {
     var newUser = setup.createUser(username, socket.id);
+    console.log("new user: " + socket.id);
     users.push(newUser);
   });
-});
 
-/*
-io.on('disconnect', function(socket) {
-  console.log("fdsafas");
+  // TODO: Fix
+  socket.on('disconnect', function() {
+    console.log(socket.id + " has left the server.");
+  });
 });
-*/
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
