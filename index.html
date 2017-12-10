@@ -4,12 +4,30 @@
     <title>CC</title>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script src="client/client.js"></script>
   </head>
   <body>
-    <div id="content"></div>
-    <p>username:</p>
-    <input type="text" id="username"><br>
-    <button onClick="sendUsernameToServer()">Submit</button>
+    <div id="content">
+      <p>username:</p>
+      <input type="text" id="username"><br>
+      <button onClick="sendUsernameToServer()">Submit</button>
+    </div>
+
+    <p>Room Title:</p>
+    <input type="text" id="roomTitle"><br>
+    <button onClick="createRoom()">Create Room</button>
+
+    <script>
+      var socket = io();
+      const content = document.getElementById("content");
+
+      function sendUsernameToServer() {
+        socket.emit('new user', $('#username').val());
+        return;
+      };
+
+      function createRoom() {
+        socket.emit('new room', $('#roomTitle').val());
+      }
+    </script>
   </body>
 </html>
