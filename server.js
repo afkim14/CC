@@ -1,3 +1,4 @@
+var setup = require('./server/setup');
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -10,10 +11,16 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
   socket.on('new user', function(username) {
-    //console.log(username);
-    //console.log(socket.id);
+    var newUser = setup.createUser(username, socket.id);
+    users.push(newUser);
   });
 });
+
+/*
+io.on('disconnect', function(socket) {
+  console.log("fdsafas");
+});
+*/
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
