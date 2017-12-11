@@ -70,12 +70,6 @@
         return;
       };
 
-      function goToCreateRoomPage() {
-        state = State.CREATEROOM;
-        toggleView();
-        return;
-      }
-
       function createRoom() {
         socket.emit('new room', $('#roomTitle').val());
       }
