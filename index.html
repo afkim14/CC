@@ -14,12 +14,15 @@
           CREATEROOM : 2,
           LOBBY: 3,
           GAME: 4,
+          JOINROOM: 5
       }
 
       var socket = io();
       var state = State.LOGIN;
+      // var request = require("request");
       var currentUser = null;
       var currentRoom = null;
+      var rooms = [];
 
       function toggleView() {
         switch(state) {
@@ -36,6 +39,7 @@
             const mainHTML = `
                 <p>Main Page</p>
                 <button onClick=\"switchToState(2)\">Create Room</button>
+                <button onClick=\"switchToState(5)\">Join Room</button>
             `;
             document.getElementById("content").innerHTML = mainHTML;
             break;
@@ -52,7 +56,7 @@
             const lobbyHTML = `
                 <p id="roomName">Room: </p>
                 <p id="roomMembers">Members:</p>
-                <button onClick=\"quitRoom()\">Quit Room</button>
+                <button onClick=\"switchToState(1)\">Quit Room</button>
             `;
             document.getElementById("content").innerHTML = lobbyHTML;
             document.getElementById("roomName").innerHTML = "Room: " + currentRoom.title;
@@ -62,6 +66,19 @@
             }
             document.getElementById("roomMembers").innerHTML = "Members: " + memberString;
             break;
+          case State.JOINROOM:
+            const joinRoomHTML = `
+              <p>Rooms</p>
+              <p id="roomsList">Rooms:</p>
+            `;
+            var roomString = "";
+            for (var key in rooms) {
+              if (rooms.hasOwnProperty(key)) {
+                roomString += rooms[key].title + " has " + rooms[key].players.length + " players. \n";
+              }
+            }
+            document.getElementById("content").innerHTML = joinRoomHTML;
+            document.getElementById("roomsList").innerHTML = roomString;
         }
       }
       toggleView();
@@ -72,7 +89,20 @@
             state=State.CREATEROOM;
             toggleView();
             break;
+          case State.MAIN:
+            quitRoom();
+            state=State.MAIN;
+            currentRoom = null;
+            toggleView();
+            break;
+          case State.JOINROOM:
+            getRooms();
+            break;
         }
+      }
+
+      function quitRoom() {
+        socket.emit('quit room', currentRoom.title);
       }
 
       function sendUsernameToServer() {
@@ -85,13 +115,16 @@
         return;
       }
 
-      function quitRoom() {
-        socket.emit('quit room', '');
-        currentRoom = null;
-        state = State.MAIN;
-        toggleView();
+      function getRooms() {
+        socket.emit('get rooms');
         return;
       }
+
+      socket.on('get room response', function(data) {
+        rooms = data.rooms;
+        state = State.JOINROOM;
+        toggleView();
+      });
 
       socket.on('login response', function(data) {
         if (data.user != null) {

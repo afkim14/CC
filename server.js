@@ -3,12 +3,16 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
-var users = {};
-var rooms = {};
+var users = {}; // key: socket id, val: user obj
+var rooms = {}; // key: socket id, val: room obj
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
+
+app.get('/rooms', function(req, res){
+  res.send(rooms)
+})
 
 io.on('connection', function(socket){
   socket.on('new user', function(username) {
@@ -31,13 +35,17 @@ io.on('connection', function(socket){
     }
   });
 
-  socket.on('quit room', function() {
+  socket.on('get rooms', function() {
+    socket.emit('get room response', {rooms: rooms});
+  });
+
+  socket.on('quit room', function(res) {
     // TODO: remove player from the room
+    // we should change key from socket id to a room id
   });
 
   socket.on('disconnect', function() {
     if (socket.id in users) {
-      console.log(socket.id + " has left the server.");
       delete users[socket.id];
     }
   });
