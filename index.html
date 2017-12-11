@@ -6,24 +6,61 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   </head>
   <body>
-    <div id="content">
-      <p>username:</p>
-      <input type="text" id="username"><br>
-      <button onClick="sendUsernameToServer()">Submit</button>
-    </div>
-
-    <p>Room Title:</p>
-    <input type="text" id="roomTitle"><br>
-    <button onClick="createRoom()">Create Room</button>
+    <div id="content"></div>
 
     <script>
+      var State = {
+          LOGIN : 0,
+          MAIN : 1,
+          CREATEROOM : 2,
+          LOBBY: 3,
+          GAME: 4,
+      }
+
       var socket = io();
-      const content = document.getElementById("content");
+      var state = State.LOGIN;
+
+      function toggleView() {
+        switch(state) {
+          case State.LOGIN:
+            const loginHTML = `
+                <p>username:</p>
+                <input type=\"text\" id=\"username\"><br>
+                <button onClick=\"sendUsernameToServer()\">Submit</button>
+            `;
+            document.getElementById("content").innerHTML = loginHTML;
+            break;
+          case State.MAIN:
+            const mainHTML = `
+                <p>Main Page</p>
+                <button onClick=\"goToCreateRoomPage()\">Create Room</button>
+            `;
+            document.getElementById("content").innerHTML = mainHTML;
+            break;
+          case State.CREATEROOM:
+            const createRoomHTML = `
+                <p>Room Title</p>
+                <input type=\"text\" id=\"roomTitle\"><br>
+                <button onClick=\"createRoom()\">Create Room</button>
+            `;
+            document.getElementById("content").innerHTML = createRoomHTML;
+            break;
+        }
+      }
+      toggleView();
 
       function sendUsernameToServer() {
         socket.emit('new user', $('#username').val());
+        state = State.MAIN;
+        toggleView();
         return;
       };
+
+      function goToCreateRoomPage() {
+        state = State.CREATEROOM;
+        toggleView();
+        return;
+      }
 
       function createRoom() {
         socket.emit('new room', $('#roomTitle').val());
