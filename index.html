@@ -7,7 +7,6 @@
   </head>
   <body>
     <div id="content"></div>
-
     <script>
       var State = {
           LOGIN : 0,
@@ -19,6 +18,8 @@
 
       var socket = io();
       var state = State.LOGIN;
+      var currentUser = null;
+      var currentRoom = null;
 
       function toggleView() {
         switch(state) {
@@ -26,14 +27,15 @@
             const loginHTML = `
                 <p>username:</p>
                 <input type=\"text\" id=\"username\"><br>
-                <button onClick=\"switchState(1)\">Submit</button>
+                <p id=\"reply\"></p>
+                <button onClick=\"sendUsernameToServer()\">Submit</button>
             `;
             document.getElementById("content").innerHTML = loginHTML;
             break;
           case State.MAIN:
             const mainHTML = `
                 <p>Main Page</p>
-                <button onClick=\"switchState(2)\">Create Room</button>
+                <button onClick=\"switchToState(2)\">Create Room</button>
             `;
             document.getElementById("content").innerHTML = mainHTML;
             break;
@@ -41,21 +43,31 @@
             const createRoomHTML = `
                 <p>Room Title</p>
                 <input type=\"text\" id=\"roomTitle\"><br>
+                <p id=\"reply\"></p>
                 <button onClick=\"createRoom()\">Create Room</button>
             `;
             document.getElementById("content").innerHTML = createRoomHTML;
+            break;
+          case State.LOBBY:
+            const lobbyHTML = `
+                <p id="roomName">Room: </p>
+                <p id="roomMembers">Members:</p>
+                <button onClick=\"quitRoom()\">Quit Room</button>
+            `;
+            document.getElementById("content").innerHTML = lobbyHTML;
+            document.getElementById("roomName").innerHTML = "Room: " + currentRoom.title;
+            var memberString = ""
+            for (var i = 0; i < currentRoom.players.length; i++) {
+              memberString += currentRoom.players[i].username + ", ";
+            }
+            document.getElementById("roomMembers").innerHTML = "Members: " + memberString;
             break;
         }
       }
       toggleView();
 
-      function switchState(stateKey) {
-        switch(stateKey) { // sendUsernameToServer()
-          case State.MAIN:
-            socket.emit('new user', $('#username').val());
-            state = State.MAIN;
-            toggleView();
-            break;
+      function switchToState(stateKey) {
+        switch(stateKey) {
           case State.CREATEROOM: // goToCreateRoomPage()
             state=State.CREATEROOM;
             toggleView();
@@ -65,14 +77,41 @@
 
       function sendUsernameToServer() {
         socket.emit('new user', $('#username').val());
-        state = State.MAIN;
-        toggleView();
         return;
       };
 
       function createRoom() {
         socket.emit('new room', $('#roomTitle').val());
+        return;
       }
+
+      function quitRoom() {
+        socket.emit('quit room', '');
+        currentRoom = null;
+        state = State.MAIN;
+        toggleView();
+        return;
+      }
+
+      socket.on('login response', function(data) {
+        if (data.user != null) {
+          currentUser = data.user;
+          state = State.MAIN;
+          toggleView();
+        } else {
+          document.getElementById("reply").innerHTML = "Failed to login. Make sure username is less than 10 characters";
+        }
+      });
+
+      socket.on('room response', function(data) {
+        if (data.room) {
+          currentRoom = data.room;
+          state = State.LOBBY;
+          toggleView();
+        } else {
+          document.getElementById("reply").innerHTML = "Failed to create room. Make sure title is less than 10 characters";
+        }
+      });
     </script>
   </body>
 </html>
