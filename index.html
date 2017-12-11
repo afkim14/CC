@@ -31,9 +31,15 @@
                 <p>username:</p>
                 <input type=\"text\" id=\"username\"><br>
                 <p id=\"reply\"></p>
-                <button onClick=\"sendUsernameToServer()\">Submit</button>
+                <button id=\"submit\" onClick=\"sendUsernameToServer()\">Submit</button>
             `;
             document.getElementById("content").innerHTML = loginHTML;
+            document.getElementById("username").addEventListener("keyup", function(event) {
+              event.preventDefault();
+              if (event.keyCode === 13) {
+                  document.getElementById("submit").click();
+              }
+            });
             break;
           case State.MAIN:
             const mainHTML = `
@@ -48,9 +54,15 @@
                 <p>Room Title</p>
                 <input type=\"text\" id=\"roomTitle\"><br>
                 <p id=\"reply\"></p>
-                <button onClick=\"createRoom()\">Create Room</button>
+                <button id=\"submit\" onClick=\"createRoom()\">Create Room</button>
             `;
             document.getElementById("content").innerHTML = createRoomHTML;
+            document.getElementById("roomTitle").addEventListener("keyup", function(event) {
+              event.preventDefault();
+              if (event.keyCode === 13) {
+                  document.getElementById("submit").click();
+              }
+            });
             break;
           case State.LOBBY:
             const lobbyHTML = `
@@ -70,11 +82,13 @@
             const joinRoomHTML = `
               <p>Rooms</p>
               <p id="roomsList">Rooms:</p>
+              <div id="roomsContainer"></div>
             `;
             var roomString = "";
             for (var key in rooms) {
               if (rooms.hasOwnProperty(key)) {
-                roomString += rooms[key].title + " has " + rooms[key].players.length + " players. \n";
+                roomString += "<a onclick=enterRoom(\"" + key + "\")>" + rooms[key].title + "</a>"
+                            + "<p>" + "(" + rooms[key].players.length + "/6" + ")" + " players." + "</p>";
               }
             }
             document.getElementById("content").innerHTML = joinRoomHTML;
@@ -115,6 +129,11 @@
         return;
       }
 
+      function enterRoom(roomKey) {
+        socket.emit('enter room', roomKey);
+        return;
+      }
+
       function getRooms() {
         socket.emit('get rooms');
         return;
@@ -132,7 +151,7 @@
           state = State.MAIN;
           toggleView();
         } else {
-          document.getElementById("reply").innerHTML = "Failed to login. Make sure username is less than 10 characters";
+          document.getElementById("reply").innerHTML = data.error;
         }
       });
 
@@ -142,8 +161,14 @@
           state = State.LOBBY;
           toggleView();
         } else {
-          document.getElementById("reply").innerHTML = "Failed to create room. Make sure title is less than 10 characters";
+          document.getElementById("reply").innerHTML = data.error;
         }
+      });
+
+      socket.on('new player in room', function(data) {
+        currentRoom = data.room;
+        state = State.LOBBY;
+        toggleView();
       });
     </script>
   </body>

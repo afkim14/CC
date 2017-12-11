@@ -1,5 +1,6 @@
 var setup = require('./server/setup');
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
@@ -14,14 +15,17 @@ app.get('/rooms', function(req, res){
   res.send(rooms)
 })
 
+app.use('/', express.static(__dirname + '/public'));
+
 io.on('connection', function(socket){
   socket.on('new user', function(username) {
-    if (username.length <= 10) { // dumb condition for now
+    if (username.length <= 10) { // placeholder condition for now
       var newUser = setup.createUser(username, socket.id);
       users[socket.id] = newUser;
       socket.emit('login response', {user: newUser});
     } else {
-      socket.emit('login response', {user: null});
+      socket.emit('login response', {user: null,
+                                     error: "Failed to login. Make sure username is less than 10 characters"});
     }
   });
 
@@ -31,12 +35,27 @@ io.on('connection', function(socket){
       rooms[socket.id] = newRoom;
       socket.emit('room response', {room: newRoom});
     } else {
-      socket.emit('room response', {room: null});
+      socket.emit('room response', {room: null,
+                                    error: "Failed to create room. Make sure title is less than 10 characters"});
     }
   });
 
   socket.on('get rooms', function() {
     socket.emit('get room response', {rooms: rooms});
+  });
+
+  socket.on('enter room', function(roomKey) {
+    if (rooms[roomKey]) {
+      rooms[roomKey].players.push(users[socket.id]);
+      for (var i = 0; i < rooms[roomKey].players.length; i++) {
+        var player = rooms[roomKey].players[i];
+        io.to(player.socketid).emit('new player in room', {room: rooms[roomKey]});
+      }
+      socket.emit('room response', {room: rooms[roomKey]});
+    } else {
+      socket.emit('room response', {room: null,
+                                    error: "Failed to join room."});
+    }
   });
 
   socket.on('quit room', function(res) {
