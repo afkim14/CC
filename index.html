@@ -26,14 +26,14 @@
             const loginHTML = `
                 <p>username:</p>
                 <input type=\"text\" id=\"username\"><br>
-                <button onClick=\"sendUsernameToServer()\">Submit</button>
+                <button onClick=\"switchState(1)\">Submit</button>
             `;
             document.getElementById("content").innerHTML = loginHTML;
             break;
           case State.MAIN:
             const mainHTML = `
                 <p>Main Page</p>
-                <button onClick=\"goToCreateRoomPage()\">Create Room</button>
+                <button onClick=\"switchState(2)\">Create Room</button>
             `;
             document.getElementById("content").innerHTML = mainHTML;
             break;
@@ -48,6 +48,20 @@
         }
       }
       toggleView();
+
+      function switchState(stateKey) {
+        switch(stateKey) { // sendUsernameToServer()
+          case State.MAIN:
+            socket.emit('new user', $('#username').val());
+            state = State.MAIN;
+            toggleView();
+            break;
+          case State.CREATEROOM: // goToCreateRoomPage()
+            state=State.CREATEROOM;
+            toggleView();
+            break;
+        }
+      }
 
       function sendUsernameToServer() {
         socket.emit('new user', $('#username').val());

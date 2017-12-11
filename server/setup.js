@@ -8,6 +8,7 @@ module.exports = {
   },
   createRoom: function (roomName, owner) {
     var newRoom = new Room(roomName, owner);
+    console.log(newRoom);
     return newRoom;
   },
   addUserToRoom: function () {
