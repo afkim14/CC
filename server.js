@@ -32,8 +32,8 @@ io.on('connection', function(socket){
   socket.on('new room', function(roomTitle) {
     if (roomTitle.length <= 10) {
       var newRoom = setup.createRoom(roomTitle, users[socket.id]);
-      rooms[socket.id] = newRoom;
-      socket.join(roomTitle);
+      rooms[newRoom.id] = newRoom;
+      socket.join(newRoom.id);
       socket.emit('room response', {room: newRoom});
     } else {
       socket.emit('room response', {room: null,
