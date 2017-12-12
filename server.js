@@ -86,6 +86,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('disconnect', function() {
+    // TODO: remove player if he/she's in a room
     if (socket.id in users) {
       delete users[socket.id];
     }

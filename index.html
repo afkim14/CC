@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>CC</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   </head>
@@ -28,10 +29,12 @@
         switch(state) {
           case State.LOGIN:
             const loginHTML = `
-                <p>username:</p>
-                <input type=\"text\" id=\"username\"><br>
-                <p id=\"reply\"></p>
-                <button id=\"submit\" onClick=\"sendUsernameToServer()\">Submit</button>
+                <div class=\"center_container\" style=\"margin-top: 20%;\">
+                  <p class=\"h1\">CHINESE CHECKERS</p>
+                  <input type=\"text\" id=\"username\" placeholder=\"Username\"><br>
+                  <p class=\"h2\" id=\"reply\"></p>
+                  <button id=\"submit\" onClick=\"sendUsernameToServer()\">LOGIN</button>
+                </div>
             `;
             document.getElementById("content").innerHTML = loginHTML;
             document.getElementById("username").addEventListener("keyup", function(event) {
@@ -43,11 +46,28 @@
             break;
           case State.MAIN:
             const mainHTML = `
-                <p>Main Page</p>
-                <button onClick=\"switchToState(2)\">Create Room</button>
-                <button onClick=\"switchToState(5)\">Join Room</button>
+                <div class=\"center_container\">
+                  <p class=\"h1\">Main Page</p>
+                  <button style=\"width: 200px;\" onClick=\"switchToState(2)\">Create Room</button>
+                  <div id="roomsContainer"></div>
+                </div>
             `;
+
+            var roomString = "";
+            for (var key in rooms) {
+              if (rooms.hasOwnProperty(key)) {
+                roomString += "<div class=\"room_container\">";
+                if (Object.keys(rooms[key].players).length >= 6) { roomString += "<p class=\"room_title\">" + rooms[key].title + "</p>" }
+                else { roomString += "<a class=\"room_title\" onclick=enterRoom(\"" + key + "\")>" + rooms[key].title + "</a>" }
+                roomString += "<div class=\"room_info_container\">";
+                roomString += "<p class=\"room_capacity\">" + "(" + Object.keys(rooms[key].players).length + "/6" + ")" + " players" + "</p>"
+                            + "<p class=\"room_owner\">owned by " + rooms[key].owner.username + ".</p>";
+                roomString += "</div>"
+                roomString += "</div>";
+              }
+            }
             document.getElementById("content").innerHTML = mainHTML;
+            document.getElementById("roomsContainer").innerHTML = roomString;
             break;
           case State.CREATEROOM:
             const createRoomHTML = `
@@ -66,34 +86,22 @@
             break;
           case State.LOBBY:
             const lobbyHTML = `
-                <p id="roomName">Room: </p>
-                <p id="roomMembers">Members:</p>
-                <button onClick=\"switchToState(1)\">Quit Room</button>
+                <div class=\"center_container\">
+                  <p class=\"h1\" id="roomName"></p>
+                  <p class=\"h2\" id="roomName">Players</p>
+                  <div id=\"members_container\"></div>
+                  <button onClick=\"switchToState(1)\">Quit Room</button>
+                </div>
             `;
             document.getElementById("content").innerHTML = lobbyHTML;
-            document.getElementById("roomName").innerHTML = "Room: " + currentRoom.title;
-            var memberString = ""
+            document.getElementById("roomName").innerHTML = currentRoom.title;
+            var memberString = "<div class=\"user_container\">";
             for (var socketid in currentRoom.players) {
-              memberString += currentRoom.players[socketid].username + ", ";
+              memberString += "<p>" + currentRoom.players[socketid].username + "</p>";
             }
-            document.getElementById("roomMembers").innerHTML = "Members: " + memberString;
+            memberString += "</div>";
+            document.getElementById("members_container").innerHTML = memberString;
             break;
-          case State.JOINROOM:
-            const joinRoomHTML = `
-              <p>Rooms</p>
-              <p id="roomsList">Rooms:</p>
-              <div id="roomsContainer"></div>
-            `;
-            var roomString = "";
-            for (var key in rooms) {
-              if (rooms.hasOwnProperty(key)) {
-                roomString += "<a onclick=enterRoom(\"" + key + "\")>" + rooms[key].title + "</a>"
-                            + "<p>owned by " + rooms[key].owner.username + ".</p>" 
-                            + "<p>" + "(" + Object.keys(rooms[key].players).length + "/6" + ")" + " players." + "</p>";
-              }
-            }
-            document.getElementById("content").innerHTML = joinRoomHTML;
-            document.getElementById("roomsList").innerHTML = roomString;
         }
       }
       toggleView();
@@ -109,9 +117,6 @@
             state=State.MAIN;
             currentRoom = null;
             toggleView();
-            break;
-          case State.JOINROOM:
-            getRooms();
             break;
         }
       }
@@ -142,7 +147,7 @@
 
       socket.on('get room response', function(data) {
         rooms = data.rooms;
-        state = State.JOINROOM;
+        state = State.MAIN;
         toggleView();
       });
 
@@ -150,6 +155,7 @@
         if (data.user != null) {
           currentUser = data.user;
           state = State.MAIN;
+          getRooms();
           toggleView();
         } else {
           document.getElementById("reply").innerHTML = data.error;

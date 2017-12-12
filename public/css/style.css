@@ -1,0 +1,91 @@
+*:focus {
+    outline: none;
+}
+body {
+  background-color: #3f3f3f;
+}
+@font-face {
+    font-family: montserrat-regular;
+    src: url(../fonts/Montserrat-Regular.otf);
+}
+@font-face {
+  font-family: montserrat-light;
+  src: url(../fonts/Montserrat-Light.otf);
+}
+#username {
+  width: 240px;
+  height: 40px;
+  border-radius: 10px;
+  text-align: center;
+  font-family: montserrat-light;
+  font-size: 18px;
+  border: none;
+}
+button {
+  width: 110px;
+  height: 40px;
+  background-color: #67BFAA;
+  font-family: montserrat-light;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 5px;
+}
+button:hover {
+  cursor: pointer;
+}
+.center_container {
+  text-align: center;
+}
+.h1 {
+  font-family: montserrat-regular;
+  font-size: 50px;
+  color: white;
+}
+.h2 {
+  font-family: montserrat-light;
+  font-size: 20px;
+  color: white;
+}
+.room_container {
+  background-color: #67BFAA;
+  width: 700px;
+  height: 50px;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+.room_info_container {
+  position: relative;
+  margin-top: 15px;
+}
+.room_title {
+  font-family: montserrat-light;
+  font-size: 20px;
+  color: white;
+  float: left;
+}
+.room_title:hover {
+  cursor: pointer;
+}
+.room_owner {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.room_capacity {
+
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.user_container {
+  background-color: #67BFAA;
+  width: 200px;
+  height: 30px;
+  border-radius: 10px;
+  margin: 0 auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
