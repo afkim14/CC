@@ -73,8 +73,8 @@
             document.getElementById("content").innerHTML = lobbyHTML;
             document.getElementById("roomName").innerHTML = "Room: " + currentRoom.title;
             var memberString = ""
-            for (var i = 0; i < currentRoom.players.length; i++) {
-              memberString += currentRoom.players[i].username + ", ";
+            for (var socketid in currentRoom.players) {
+              memberString += currentRoom.players[socketid].username + ", ";
             }
             document.getElementById("roomMembers").innerHTML = "Members: " + memberString;
             break;
@@ -88,7 +88,8 @@
             for (var key in rooms) {
               if (rooms.hasOwnProperty(key)) {
                 roomString += "<a onclick=enterRoom(\"" + key + "\")>" + rooms[key].title + "</a>"
-                            + "<p>" + "(" + rooms[key].players.length + "/6" + ")" + " players." + "</p>";
+                            + "<p>owned by " + rooms[key].owner.username + ".</p>" 
+                            + "<p>" + "(" + Object.keys(rooms[key].players).length + "/6" + ")" + " players." + "</p>";
               }
             }
             document.getElementById("content").innerHTML = joinRoomHTML;
@@ -116,7 +117,7 @@
       }
 
       function quitRoom() {
-        socket.emit('quit room', currentRoom.title);
+        socket.emit('quit room', {room: currentRoom});
       }
 
       function sendUsernameToServer() {
@@ -165,7 +166,7 @@
         }
       });
 
-      socket.on('new player in room', function(data) {
+      socket.on('room update', function(data) {
         currentRoom = data.room;
         state = State.LOBBY;
         toggleView();

@@ -46,10 +46,9 @@ io.on('connection', function(socket){
 
   socket.on('enter room', function(roomKey) {
     if (rooms[roomKey]) {
-      rooms[roomKey].players.push(users[socket.id]);
-      for (var i = 0; i < rooms[roomKey].players.length; i++) {
-        var player = rooms[roomKey].players[i];
-        io.to(player.socketid).emit('new player in room', {room: rooms[roomKey]});
+      rooms[roomKey].players[socket.id] = users[socket.id];
+      for (var socketid in rooms[roomKey].players) {
+        io.to(socketid).emit('room update', {room: rooms[roomKey]});
       }
       socket.emit('room response', {room: rooms[roomKey]});
     } else {
@@ -58,9 +57,32 @@ io.on('connection', function(socket){
     }
   });
 
-  socket.on('quit room', function(res) {
+  socket.on('quit room', function(data) {
     // TODO: remove player from the room
     // we should change key from socket id to a room id
+    var roomid = data.room.owner.socketid;
+    if (rooms[roomid]) {
+      // if owner, right now transfer ownership but it can be whatever
+      if (rooms[roomid].owner.socketid == socket.id && Object.keys(rooms[roomid].players).length > 1) {
+        for (var socketid in rooms[roomid].players) {
+          if (socketid != socket.id) {
+            rooms[socketid] = rooms[roomid];
+            delete rooms[roomid];
+            roomid = socketid;
+            rooms[roomid].owner = users[socketid];
+          }
+        }
+      }
+
+      delete rooms[roomid].players[socket.id];
+      for (var socketid in rooms[roomid].players) {
+        io.to(socketid).emit('room update', {room: rooms[roomid]});
+      }
+
+      if (Object.keys(rooms[roomid].players).length <= 0) {
+        delete rooms[roomid];
+      }
+    }
   });
 
   socket.on('disconnect', function() {
