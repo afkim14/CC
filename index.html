@@ -15,7 +15,6 @@
           CREATEROOM : 2,
           LOBBY: 3,
           GAME: 4,
-          JOINROOM: 5
       }
 
       var socket = io();
@@ -95,11 +94,12 @@
             `;
             document.getElementById("content").innerHTML = lobbyHTML;
             document.getElementById("roomName").innerHTML = currentRoom.title;
-            var memberString = "<div class=\"user_container\">";
+            var memberString = "";
             for (var socketid in currentRoom.players) {
+              memberString += "<div class=\"user_container\">";
               memberString += "<p>" + currentRoom.players[socketid].username + "</p>";
+              memberString += "</div>";
             }
-            memberString += "</div>";
             document.getElementById("members_container").innerHTML = memberString;
             break;
         }
@@ -113,15 +113,10 @@
             toggleView();
             break;
           case State.MAIN:
-            quitRoom();
+            quitRoom(); // this is going to be a problem later when we want to go from a page other than room to Main
             state=State.MAIN;
             currentRoom = null;
             toggleView();
-            break;
-          case State.JOINROOM:
-            // connect to namespace
-            var roomsSocket = io('/rooms');
-            getRooms();
             break;
         }
       }
@@ -177,6 +172,7 @@
         if (data.user != null) {
           currentUser = data.user;
           state = State.MAIN;
+          var roomsSocket = io('/rooms');
           getRooms();
           toggleView();
         } else {
