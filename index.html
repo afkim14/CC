@@ -89,7 +89,7 @@
                   <p class=\"h1\" id="roomName"></p>
                   <p class=\"h2\" id="roomName">Players</p>
                   <div id=\"members_container\"></div>
-                  <button onClick=\"switchToState(1)\">Quit Room</button>
+                  <button onClick=\"quitRoom()\">Quit Room</button>
                 </div>
             `;
             document.getElementById("content").innerHTML = lobbyHTML;
@@ -108,21 +108,26 @@
 
       function switchToState(stateKey) {
         switch(stateKey) {
-          case State.CREATEROOM: // goToCreateRoomPage()
+          case State.CREATEROOM:
             state=State.CREATEROOM;
             toggleView();
             break;
           case State.MAIN:
-            quitRoom(); // this is going to be a problem later when we want to go from a page other than room to Main
-            state=State.MAIN;
+            getRooms();
             currentRoom = null;
+            state=State.MAIN;
             toggleView();
             break;
+          case State.LOBBY:
+            state = State.LOBBY;
+            toggleView();
         }
       }
 
       function quitRoom() {
         socket.emit('quit room', {room: currentRoom});
+        switchToState(State.MAIN);
+        return;
       }
 
       function sendUsernameToServer() {
@@ -171,10 +176,8 @@
       socket.on('login response', function(data) {
         if (data.user != null) {
           currentUser = data.user;
-          state = State.MAIN;
           var roomsSocket = io('/rooms');
-          getRooms();
-          toggleView();
+          switchToState(State.MAIN);
         } else {
           document.getElementById("reply").innerHTML = data.error;
         }
@@ -183,18 +186,17 @@
       socket.on('room response', function(data) {
         if (data.room) {
           currentRoom = data.room;
-          state = State.LOBBY;
-          toggleView();
           joinServerRoomOnResponse();
+          switchToState(State.LOBBY);
         } else {
           document.getElementById("reply").innerHTML = data.error;
         }
       });
 
       socket.on('room update', function(data) {
+        console.log('room update');
         currentRoom = data.room;
-        state = State.LOBBY;
-        toggleView();
+        switchToState(State.LOBBY);
       });
     </script>
   </body>
