@@ -33,6 +33,7 @@ io.on('connection', function(socket){
     if (roomTitle.length <= 10) {
       var newRoom = setup.createRoom(roomTitle, users[socket.id]);
       rooms[socket.id] = newRoom;
+      socket.join(roomTitle);
       socket.emit('room response', {room: newRoom});
     } else {
       socket.emit('room response', {room: null,
@@ -57,9 +58,13 @@ io.on('connection', function(socket){
     }
   });
 
+  socket.on('open room connection', function(roomTitle) {
+    socket.join(roomTitle);
+  });
+
   socket.on('quit room', function(data) {
     // TODO: remove player from the room
-    // we should change key from socket id to a room id
+    // we should change key from socket id to a room id ****************!!!!
     var roomid = data.room.owner.socketid;
     if (rooms[roomid]) {
       // if owner, right now transfer ownership but it can be whatever
@@ -85,6 +90,15 @@ io.on('connection', function(socket){
     }
   });
 
+  socket.on('room message', function(data) {
+    var roomId = data.roomId;
+    // data.message is hardcoded right now
+    io.sockets.in(data.roomId).emit('room message', data.message);
+
+    // this holds info about all sockets connected to the room
+    var roster = io.sockets.adapter.rooms[data.roomId];
+  });
+
   socket.on('disconnect', function() {
     // TODO: remove player if he/she's in a room
     if (socket.id in users) {
@@ -92,6 +106,7 @@ io.on('connection', function(socket){
     }
   });
 });
+
 
 http.listen(port, function(){
   console.log('listening on *:' + port);

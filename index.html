@@ -86,12 +86,19 @@
             break;
           case State.LOBBY:
             const lobbyHTML = `
+<<<<<<< HEAD
                 <div class=\"center_container\">
                   <p class=\"h1\" id="roomName"></p>
                   <p class=\"h2\" id="roomName">Players</p>
                   <div id=\"members_container\"></div>
                   <button onClick=\"switchToState(1)\">Quit Room</button>
                 </div>
+=======
+                <p id="roomName">Room: </p>
+                <p id="roomMembers">Members:</p>
+                <button onClick=\"switchToState(1)\">Quit Room</button>
+                <button onClick=\"sendMessage()\">Send Message</button>
+>>>>>>> 5f2f44ba900838beeb4e7e21f38fec76bf84505b
             `;
             document.getElementById("content").innerHTML = lobbyHTML;
             document.getElementById("roomName").innerHTML = currentRoom.title;
@@ -118,6 +125,14 @@
             currentRoom = null;
             toggleView();
             break;
+<<<<<<< HEAD
+=======
+          case State.JOINROOM:
+            // connect to namespace
+            var roomsSocket = io('/rooms');
+            getRooms();
+            break;
+>>>>>>> 5f2f44ba900838beeb4e7e21f38fec76bf84505b
         }
       }
 
@@ -145,6 +160,23 @@
         return;
       }
 
+      function joinServerRoomOnResponse() {
+        socket.emit('open room connection', currentRoom.title);
+      }
+
+      function sendMessage() {
+        var message = { // make this an enum later
+          roomId: currentRoom.title,
+          message: "hello room"
+        }
+        socket.emit('room message', message);
+      }
+
+      socket.on('room message', function(data){
+        // prints message from server onto console
+        console.log(data);
+      });
+
       socket.on('get room response', function(data) {
         rooms = data.rooms;
         state = State.MAIN;
@@ -167,6 +199,7 @@
           currentRoom = data.room;
           state = State.LOBBY;
           toggleView();
+          joinServerRoomOnResponse();
         } else {
           document.getElementById("reply").innerHTML = data.error;
         }
