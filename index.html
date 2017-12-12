@@ -31,9 +31,15 @@
                 <p>username:</p>
                 <input type=\"text\" id=\"username\"><br>
                 <p id=\"reply\"></p>
-                <button onClick=\"sendUsernameToServer()\">Submit</button>
+                <button id=\"submit\" onClick=\"sendUsernameToServer()\">Submit</button>
             `;
             document.getElementById("content").innerHTML = loginHTML;
+            document.getElementById("username").addEventListener("keyup", function(event) {
+              event.preventDefault();
+              if (event.keyCode === 13) {
+                  document.getElementById("submit").click();
+              }
+            });
             break;
           case State.MAIN:
             const mainHTML = `
@@ -48,21 +54,28 @@
                 <p>Room Title</p>
                 <input type=\"text\" id=\"roomTitle\"><br>
                 <p id=\"reply\"></p>
-                <button onClick=\"createRoom()\">Create Room</button>
+                <button id=\"submit\" onClick=\"createRoom()\">Create Room</button>
             `;
             document.getElementById("content").innerHTML = createRoomHTML;
+            document.getElementById("roomTitle").addEventListener("keyup", function(event) {
+              event.preventDefault();
+              if (event.keyCode === 13) {
+                  document.getElementById("submit").click();
+              }
+            });
             break;
           case State.LOBBY:
             const lobbyHTML = `
                 <p id="roomName">Room: </p>
                 <p id="roomMembers">Members:</p>
                 <button onClick=\"switchToState(1)\">Quit Room</button>
+                <button onClick=\"sendMessage()\">Send Message</button>
             `;
             document.getElementById("content").innerHTML = lobbyHTML;
             document.getElementById("roomName").innerHTML = "Room: " + currentRoom.title;
             var memberString = ""
-            for (var i = 0; i < currentRoom.players.length; i++) {
-              memberString += currentRoom.players[i].username + ", ";
+            for (var socketid in currentRoom.players) {
+              memberString += currentRoom.players[socketid].username + ", ";
             }
             document.getElementById("roomMembers").innerHTML = "Members: " + memberString;
             break;
@@ -70,11 +83,14 @@
             const joinRoomHTML = `
               <p>Rooms</p>
               <p id="roomsList">Rooms:</p>
+              <div id="roomsContainer"></div>
             `;
             var roomString = "";
             for (var key in rooms) {
               if (rooms.hasOwnProperty(key)) {
-                roomString += rooms[key].title + " has " + rooms[key].players.length + " players. \n";
+                roomString += "<a onclick=enterRoom(\"" + key + "\")>" + rooms[key].title + "</a>"
+                            + "<p>owned by " + rooms[key].owner.username + ".</p>" 
+                            + "<p>" + "(" + Object.keys(rooms[key].players).length + "/6" + ")" + " players." + "</p>";
               }
             }
             document.getElementById("content").innerHTML = joinRoomHTML;
@@ -96,13 +112,15 @@
             toggleView();
             break;
           case State.JOINROOM:
+            // connect to namespace
+            var roomsSocket = io('/rooms');
             getRooms();
             break;
         }
       }
 
       function quitRoom() {
-        socket.emit('quit room', currentRoom.title);
+        socket.emit('quit room', {room: currentRoom});
       }
 
       function sendUsernameToServer() {
@@ -115,10 +133,32 @@
         return;
       }
 
+      function enterRoom(roomKey) {
+        socket.emit('enter room', roomKey);
+        return;
+      }
+
       function getRooms() {
         socket.emit('get rooms');
         return;
       }
+
+      function joinServerRoomOnResponse() {
+        socket.emit('open room connection', currentRoom.title);
+      }
+
+      function sendMessage() {
+        var message = { // make this an enum later
+          roomId: currentRoom.title,
+          message: "hello room"
+        }
+        socket.emit('room message', message);
+      }
+
+      socket.on('room message', function(data){
+        // prints message from server onto console
+        console.log(data);
+      });
 
       socket.on('get room response', function(data) {
         rooms = data.rooms;
@@ -132,7 +172,7 @@
           state = State.MAIN;
           toggleView();
         } else {
-          document.getElementById("reply").innerHTML = "Failed to login. Make sure username is less than 10 characters";
+          document.getElementById("reply").innerHTML = data.error;
         }
       });
 
@@ -141,9 +181,16 @@
           currentRoom = data.room;
           state = State.LOBBY;
           toggleView();
+          joinServerRoomOnResponse();
         } else {
-          document.getElementById("reply").innerHTML = "Failed to create room. Make sure title is less than 10 characters";
+          document.getElementById("reply").innerHTML = data.error;
         }
+      });
+
+      socket.on('room update', function(data) {
+        currentRoom = data.room;
+        state = State.LOBBY;
+        toggleView();
       });
     </script>
   </body>
