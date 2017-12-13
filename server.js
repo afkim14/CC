@@ -33,7 +33,6 @@ io.on('connection', function(socket) {
     if (roomTitle.length <= 10) {
       var newRoom = setup.createRoom(roomTitle, users[socket.id]);
       rooms[newRoom.id] = newRoom;
-      socket.join(newRoom.id);
       socket.emit('room response', {room: newRoom});
     } else {
       socket.emit('room response', {room: null,
@@ -45,45 +44,28 @@ io.on('connection', function(socket) {
     socket.emit('get room response', {rooms: rooms});
   });
 
-  socket.on('enter room', function(roomKey) {
-    if (rooms[roomKey]) {
-      rooms[roomKey].players[socket.id] = users[socket.id];
-      for (var socketid in rooms[roomKey].players) {
-        io.to(socketid).emit('room update', {room: rooms[roomKey]});
-      }
-      socket.emit('room response', {room: rooms[roomKey]});
+  socket.on('enter room', function(roomid) {
+    if (rooms[roomid]) {
+      rooms[roomid].players[socket.id] = users[socket.id];
+      socket.emit('room response', {room: rooms[roomid]});
     } else {
       socket.emit('room response', {room: null,
                                     error: "Failed to join room."});
     }
   });
 
-  socket.on('open room connection', function(roomTitle) {
-    socket.join(roomTitle);
+  socket.on('open room connection', function(roomid) {
+    socket.join(roomid);
+    io.to(roomid).emit('room update', {room: rooms[roomid]});
   });
 
-  socket.on('quit room', function(data) {
-    // TODO: remove player from the room
-    // we should change key from socket id to a room id ****************!!!!
-    var roomid = data.room.owner.socketid;
+  socket.on('quit room', function(roomid) {
     if (rooms[roomid]) {
-      // if owner, right now transfer ownership but it can be whatever
-      if (rooms[roomid].owner.socketid == socket.id && Object.keys(rooms[roomid].players).length > 1) {
-        for (var socketid in rooms[roomid].players) {
-          if (socketid != socket.id) {
-            rooms[socketid] = rooms[roomid];
-            delete rooms[roomid];
-            roomid = socketid;
-            rooms[roomid].owner = users[socketid];
-          }
-        }
-      }
-
       delete rooms[roomid].players[socket.id];
-      for (var socketid in rooms[roomid].players) {
-        io.to(socketid).emit('room update', {room: rooms[roomid]});
-      }
+      socket.leave(roomid);
+      io.to(roomid).emit('room update', {room: rooms[roomid]});
 
+      // If no one else left in the room
       if (Object.keys(rooms[roomid].players).length <= 0) {
         delete rooms[roomid];
       }

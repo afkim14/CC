@@ -60,7 +60,7 @@
                 else { roomString += "<a class=\"room_title\" onclick=enterRoom(\"" + key + "\")>" + rooms[key].title + "</a>" }
                 roomString += "<div class=\"room_info_container\">";
                 roomString += "<p class=\"room_capacity\">" + "(" + Object.keys(rooms[key].players).length + "/6" + ")" + " players" + "</p>"
-                            + "<p class=\"room_owner\">owned by " + rooms[key].owner.username + ".</p>";
+                            + "<p class=\"room_owner\">created by " + rooms[key].owner.username + ".</p>";
                 roomString += "</div>"
                 roomString += "</div>";
               }
@@ -127,7 +127,7 @@
       }
 
       function quitRoom() {
-        socket.emit('quit room', {room: currentRoom});
+        socket.emit('quit room', currentRoom.id);
         switchToState(State.MAIN);
         return;
       }
@@ -142,8 +142,8 @@
         return;
       }
 
-      function enterRoom(roomKey) {
-        socket.emit('enter room', roomKey);
+      function enterRoom(roomid) {
+        socket.emit('enter room', roomid);
         return;
       }
 
@@ -153,16 +153,17 @@
       }
 
       function joinServerRoomOnResponse() {
-        socket.emit('open room connection', currentRoom.title);
+        socket.emit('open room connection', currentRoom.id);
       }
 
+      /*
       function sendMessage() {
         var message = { // make this an enum later
           roomId: currentRoom.title,
           message: "hello room"
         }
         socket.emit('room message', message);
-      }
+      }*/
 
       socket.on('room message', function(data){
         // prints message from server onto console
