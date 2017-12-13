@@ -17,7 +17,7 @@ app.get('/rooms', function(req, res){
 
 app.use('/', express.static(__dirname + '/public'));
 
-io.on('connection', function(socket){
+io.on('connection', function(socket) {
   socket.on('new user', function(username) {
     if (username.length <= 10) { // placeholder condition for now
       var newUser = setup.createUser(username, socket.id);
@@ -33,7 +33,6 @@ io.on('connection', function(socket){
     if (roomTitle.length <= 10) {
       var newRoom = setup.createRoom(roomTitle, users[socket.id]);
       rooms[socket.id] = newRoom;
-      socket.join(roomTitle);
       socket.emit('room response', {room: newRoom});
     } else {
       socket.emit('room response', {room: null,

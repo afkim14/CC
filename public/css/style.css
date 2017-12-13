@@ -12,7 +12,7 @@ body {
   font-family: montserrat-light;
   src: url(../fonts/Montserrat-Light.otf);
 }
-#username {
+input[type=text] {
   width: 240px;
   height: 40px;
   border-radius: 10px;
@@ -88,4 +88,10 @@ button:hover {
   margin: 0 auto;
   margin-top: 10px;
   margin-bottom: 10px;
+}
+.username_text {
+  font-family: montserrat-light;
+  font-size: 15px;
+  padding-top: 6px;
+  color: white;
 }
