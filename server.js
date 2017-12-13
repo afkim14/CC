@@ -82,7 +82,14 @@ io.on('connection', function(socket) {
   });
 
   socket.on('disconnect', function() {
-    // TODO: remove player if he/she's in a room
+    // remove player if he or she is in a room
+    for (var roomid in rooms) {
+      if (socket.id in rooms[roomid].players) {
+        delete rooms[roomid].players[socket.id];
+        socket.leave(roomid);
+        io.to(roomid).emit('room update', {room: rooms[roomid]});
+      }
+    }
     if (socket.id in users) {
       delete users[socket.id];
     }
