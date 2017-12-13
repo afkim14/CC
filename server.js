@@ -4,16 +4,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
-var users = {}; // key: socket id, val: user obj
-var rooms = {}; // key: socket id, val: room obj
-
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
-
-app.get('/rooms', function(req, res){
-  res.send(rooms)
-})
+var users = {};
+var rooms = {};
 
 app.use('/', express.static(__dirname + '/public'));
 
