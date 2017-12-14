@@ -2,7 +2,7 @@
     SETUP.JS : SERVER HANDLING FOR USER LOGINS AND ROOM SETUPS
 */
 
-var helpers = require('../helpers');
+var helpers = require('./helpers');
 var users = {};
 var rooms = {};
 
@@ -77,6 +77,11 @@ module.exports.listen = function(io, socket) {
         delete rooms[roomid].players[socket.id];
         socket.leave(roomid);
         io.to(roomid).emit('room update', {room: rooms[roomid]});
+
+        // If no one else left in the room
+        if (Object.keys(rooms[roomid].players).length <= 0) {
+          delete rooms[roomid];
+        }
       }
     }
     if (socket.id in users) {

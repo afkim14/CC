@@ -9,7 +9,7 @@ var State = {
     MAIN : 1,
     CREATEROOM : 2,
     LOBBY: 3,
-    GAME: 4,
+    GAME: 4
 }
 var state = State.LOGIN;
 
@@ -80,7 +80,7 @@ function toggleView() {
             <p class=\"h1\" id="roomName"></p>
             <p class=\"h2\" id="roomName">Players</p>
             <div id=\"members_container\"></div>
-            <button style=\"margin-right: 20px; margin-top: 10px; display: inline-block;\" onClick=\"startGame()\">Start Game</button>
+            <button style=\"margin-right: 20px; margin-top: 10px; display: inline-block;\" onClick=\"setupGame()\">Start Game</button>
             <button style=\"margin-top: 10px; display: inline-block;\" onClick=\"quitRoom()\">Quit Room</button>
           </div>
       `;
@@ -93,6 +93,12 @@ function toggleView() {
         memberString += "</div>";
       }
       document.getElementById("members_container").innerHTML = memberString;
+      break;
+    case State.GAME:
+      const gameHTML = `
+          <div id="gameCanvas" style="text-align: center;"></div>
+      `;
+      document.getElementById("content").innerHTML = gameHTML;
       break;
   }
 }
@@ -112,6 +118,11 @@ function switchToState(stateKey) {
     case State.LOBBY:
       state = State.LOBBY;
       toggleView();
+      break;
+    case State.GAME:
+      state = State.GAME;
+      toggleView();
+      break;
   }
 }
 

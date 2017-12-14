@@ -7,7 +7,7 @@ var port = process.env.PORT || 3000;
 app.use('/', express.static(__dirname + '/public'));
 
 io.on('connection', function(socket) {
-  require('./server/socketconnection/setup').listen(io, socket);
+  require('./server/setup').listen(io, socket);
 });
 
 
