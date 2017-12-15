@@ -76,20 +76,25 @@ function drawBoard() {
         var newButton = createButton('');
         newButton.id("emptynode");
         newButton.position(currentOffset[0], currentOffset[1]);
-        var leftStr = newButton.style("left");
-        var leftFloat = parseFloat(leftStr.substring(0, leftStr.length - 2));
-        var topStr = newButton.style("top");
-        var topFloat = parseFloat(topStr.substring(0, topStr.length - 2));
-        leftFloat += canvas.position().x;
-        topFloat += canvas.position().y;
-        newButton.style("left", leftFloat.toString() + "px");
-        newButton.style("top", topFloat.toString() + "px");
+        changeButtonPosition(newButton, canvas.position().x, canvas.position().y);
         board[i][j].button = newButton;
         currentOffset[0] += offsetX;
       }
     }
     currentOffset[1] +=offsetY;
   }
+}
+
+function changeButtonPosition(button, offsetX, offsetY) {
+  var leftStr = button.style("left");
+  var leftFloat = parseFloat(leftStr.substring(0, leftStr.length - 2));
+  var topStr = button.style("top");
+  var topFloat = parseFloat(topStr.substring(0, topStr.length - 2));
+  leftFloat += offsetX;
+  topFloat += offsetY;
+  button.style("left", leftFloat.toString() + "px");
+  button.style("top", topFloat.toString() + "px");
+  return button;
 }
 
 function windowResized() {
@@ -101,16 +106,8 @@ function windowResized() {
   var height = board.length; // 17
   for (var i = 0; i < height; i++) {
     for (var j = 0; j < width; j++) {
-        if (board[i][j] != null) {
-        var button = board[i][j].button;
-        var leftStr = button.style("left");
-        var leftFloat = parseFloat(leftStr.substring(0, leftStr.length - 2));
-        var topStr = button.style("top");
-        var topFloat = parseFloat(topStr.substring(0, topStr.length - 2));
-        leftFloat += offset[0];
-        topFloat += offset[1];
-        button.style("left", leftFloat.toString() + "px");
-        button.style("top", topFloat.toString() + "px");
+      if (board[i][j] != null) {
+        changeButtonPosition(board[i][j].button, offset[0], offset[1]);
       }
     }
   }
