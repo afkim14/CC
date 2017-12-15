@@ -75,6 +75,7 @@ function drawBoard() {
         // Have to offset the buttons based on the position of the canvas
         var newButton = createButton('');
         newButton.id("emptynode");
+        newButton.mousePressed(nodeSelected.bind(this, {x: i, y: j}));
         newButton.position(currentOffset[0], currentOffset[1]);
         changeButtonPosition(newButton, canvas.position().x, canvas.position().y);
         board[i][j].button = newButton;
@@ -83,6 +84,10 @@ function drawBoard() {
     }
     currentOffset[1] +=offsetY;
   }
+}
+
+function nodeSelected(pos) { // pos = [i, j] to 2D board array
+  board[pos.x][pos.y].button.id("selectednode");
 }
 
 function changeButtonPosition(button, offsetX, offsetY) {
