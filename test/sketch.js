@@ -3,16 +3,21 @@ var originalCanvasPos;
 var constrainedCanvasWidth = 800;
 var constrainedCanvasHeight = 800;
 var board; // [][]
-var numOfPlayers = 2;
-
+var boardWidth = 17;
+var boardHeight = 21;
+var numOfPlayers = 6; // this will be sent by the server later (2, 3, 4, 6 implemented)
 var Color = {
-    RED : "RED",
-    BLUE : "BLUE",
-    GREEN : "GREEN",
-    YELLOW: "YELLOW",
-    BLACK: "BLACK",
-    WHITE: "WHITE"
+    RED : "#EA5C6A",
+    BLUE : "#6DC4E2",
+    GREEN : "#92C570",
+    YELLOW: "#E3DC51",
+    BLACK: "#3F3F3F",
+    WHITE: "#FFFFFF",
+    EMPTY: "#787878",
+    CLOSED: "#646464",
 }
+var myColor = Color.RED; // this will also be sent by the server
+var currSelectedPiece; // when user presses a piece
 
 class BoardPiece {
   constructor(row, col) {
@@ -41,31 +46,57 @@ function createBoard() {
   actualRowWidths = [
     1, 2, 3, 4, 13, 12, 11, 10, 9, 10, 11, 12, 13, 4, 3, 2, 1
   ];
-  var width = 13;
-  var height = 17;
   var currRowWidth;
-  for (var i = 0; i < height; i++) {
+  for (var i = 0; i < boardHeight; i++) {
     currRowWidth = actualRowWidths[i];
     board[i] = []
-    for (var j = 0; j < width; j++) {
+    for (var j = 0; j < boardWidth; j++) {
       if (j < currRowWidth) {
         board[i][j] = new BoardPiece(i, j);
         if (i < 4) {
-          board[i][j].color = Color.RED;
+          if (numOfPlayers != 4) {
+            board[i][j].color = Color.RED;
+          } else {
+            board[i][j].color = Color.CLOSED;
+          }
         } else if (i < 8) {
           if ((i == 4 && j < 4) || (i == 5 && j < 3) || (i == 6 && j < 2) || (i == 7 && j < 1)) {
-            board[i][j].color = Color.BLUE;
+            if (numOfPlayers == 4 || numOfPlayers == 6) {
+              board[i][j].color = Color.BLUE;
+            } else {
+              board[i][j].color = Color.CLOSED;
+            }
           } else if ((i == 4 || i == 5 || i == 6 || i == 7) && j > 8) {
-            board[i][j].color = Color.GREEN;
+            if (numOfPlayers == 4 || numOfPlayers == 6) {
+              board[i][j].color = Color.GREEN;
+            } else {
+              board[i][j].color = Color.CLOSED;
+            }
+          } else {
+            board[i][j].color = Color.EMPTY;
           }
         } else if (i < 13) {
           if ((i == 9 && j < 1) || (i == 10 && j < 2) || (i == 11 && j < 3) || (i == 12 && j < 4)) {
-            board[i][j].color = Color.YELLOW;
+            if (numOfPlayers != 2) {
+              board[i][j].color = Color.YELLOW;
+            } else {
+              board[i][j].color = Color.CLOSED;
+            }
           } else if ((i == 9 || i == 10 || i == 11 || i == 12) && j > 8) {
-            board[i][j].color = Color.BLACK;
+            if (numOfPlayers != 2) {
+              board[i][j].color = Color.BLACK;
+            } else {
+              board[i][j].color = Color.CLOSED;
+            }
+          } else {
+            board[i][j].color = Color.EMPTY;
           }
         } else {
-          board[i][j].color = Color.WHITE;
+          if (numOfPlayers == 2 || numOfPlayers == 6) {
+            board[i][j].color = Color.WHITE;
+          } else {
+            board[i][j].color = Color.CLOSED;
+          }
         }
       } else {
         board[i][j] = null; // null is good to keep track of neighbors
@@ -78,8 +109,6 @@ function createBoard() {
 }
 
 function drawBoard() {
-  var width = board[0].length; // 13
-  var height = board.length; // 17
   var offsetX = 55; // can't put in array because its mutating
   var offsetY = 44;
   var startingPosX = constrainedCanvasWidth/2 - 20;
@@ -94,14 +123,19 @@ function drawBoard() {
   ];
 
   // draw the board pieces
-  for (var i = 0; i < height; i++) {
+  for (var i = 0; i < boardHeight; i++) {
     currentOffset[0] = startingPosX - gridOffsets[i];
-    for (var j = 0; j < width; j++) {
+    for (var j = 0; j < boardWidth; j++) {
       if (board[i][j] != null) {
         // Have to offset the buttons based on the position of the canvas
         var newButton = createButton('');
-        newButton.id("node" + board[i][j].color);
-        newButton.mousePressed(nodeSelected.bind(this, {x: i, y: j}));
+        newButton.id("piece");
+        newButton.style("background-color", board[i][j].color);
+        newButton.style("border-color", board[i][j].color);
+        if (board[i][j].color == myColor) {
+          // function that is called when clicking one of the nodes
+          newButton.mousePressed(myPieceSelected.bind(this, {x: i, y: j}));
+        }
         newButton.position(currentOffset[0], currentOffset[1]);
         changeButtonPosition(newButton, canvas.position().x, canvas.position().y);
         board[i][j].button = newButton;
@@ -112,8 +146,16 @@ function drawBoard() {
   }
 }
 
-function nodeSelected(pos) { // pos = [i, j] to 2D board array
-  board[pos.x][pos.y].button.id("selectednode");
+function myPieceSelected(pos) { // pos = [i, j] to 2D board array
+  if (currSelectedPiece) {
+    currSelectedPiece.button.style("background-color", myColor);
+  }
+
+  currSelectedPiece = board[pos.x][pos.y];
+  board[pos.x][pos.y].button.style("background-color", Color.EMPTY);
+
+  // activate all possible neigbhors
+
 }
 
 function changeButtonPosition(button, offsetX, offsetY) {
@@ -133,10 +175,8 @@ function windowResized() {
   var offset = [canvas.position().x - originalCanvasPos.x, canvas.position().y - originalCanvasPos.y]; // offset from original canvas size
   originalCanvasPos.x = canvas.position().x;
   originalCanvasPos.y = canvas.position().y;
-  var width = board[0].length; // 13
-  var height = board.length; // 17
-  for (var i = 0; i < height; i++) {
-    for (var j = 0; j < width; j++) {
+  for (var i = 0; i < boardHeight; i++) {
+    for (var j = 0; j < boardWidth; j++) {
       if (board[i][j] != null) {
         changeButtonPosition(board[i][j].button, offset[0], offset[1]);
       }
