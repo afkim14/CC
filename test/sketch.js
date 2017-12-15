@@ -1,9 +1,18 @@
 var canvas;
 var originalCanvasPos;
-var constrainedCanvasWidth = 750;
-var constrainedCanvasHeight = 750;
+var constrainedCanvasWidth = 800;
+var constrainedCanvasHeight = 800;
 var board; // [][]
 var numOfPlayers = 2;
+
+var Color = {
+    RED : "RED",
+    BLUE : "BLUE",
+    GREEN : "GREEN",
+    YELLOW: "YELLOW",
+    BLACK: "BLACK",
+    WHITE: "WHITE"
+}
 
 class BoardPiece {
   constructor(row, col) {
@@ -15,7 +24,7 @@ class BoardPiece {
 
 function setup() {
   canvas = createCanvas(constrainedCanvasWidth, constrainedCanvasHeight);
-  canvas.parent('gameCanvas');
+  canvas.parent('gameCanvasContainer');
   originalCanvasPos = canvas.position();
   background(100, 100, 100);
   createBoard();
@@ -41,6 +50,23 @@ function createBoard() {
     for (var j = 0; j < width; j++) {
       if (j < currRowWidth) {
         board[i][j] = new BoardPiece(i, j);
+        if (i < 4) {
+          board[i][j].color = Color.RED;
+        } else if (i < 8) {
+          if ((i == 4 && j < 4) || (i == 5 && j < 3) || (i == 6 && j < 2) || (i == 7 && j < 1)) {
+            board[i][j].color = Color.BLUE;
+          } else if ((i == 4 || i == 5 || i == 6 || i == 7) && j > 8) {
+            board[i][j].color = Color.GREEN;
+          }
+        } else if (i < 13) {
+          if ((i == 9 && j < 1) || (i == 10 && j < 2) || (i == 11 && j < 3) || (i == 12 && j < 4)) {
+            board[i][j].color = Color.YELLOW;
+          } else if ((i == 9 || i == 10 || i == 11 || i == 12) && j > 8) {
+            board[i][j].color = Color.BLACK;
+          }
+        } else {
+          board[i][j].color = Color.WHITE;
+        }
       } else {
         board[i][j] = null; // null is good to keep track of neighbors
       }
@@ -57,7 +83,7 @@ function drawBoard() {
   var offsetX = 55; // can't put in array because its mutating
   var offsetY = 44;
   var startingPosX = constrainedCanvasWidth/2 - 20;
-  var startingPosY = 10;
+  var startingPosY = 30;
   var currentOffset = [startingPosX, startingPosY];
   var gridOffsets = [
     0, offsetX/2, (offsetX/2) * 2, (offsetX/2) * 3,
@@ -74,7 +100,7 @@ function drawBoard() {
       if (board[i][j] != null) {
         // Have to offset the buttons based on the position of the canvas
         var newButton = createButton('');
-        newButton.id("emptynode");
+        newButton.id("node" + board[i][j].color);
         newButton.mousePressed(nodeSelected.bind(this, {x: i, y: j}));
         newButton.position(currentOffset[0], currentOffset[1]);
         changeButtonPosition(newButton, canvas.position().x, canvas.position().y);
