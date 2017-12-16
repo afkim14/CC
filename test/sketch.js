@@ -18,10 +18,12 @@ var Color = {
 }
 var myColor = Color.RED; // this will also be sent by the server
 var currSelectedPiece; // when user presses a piece
+var tempNeighborColors;
+var currNeighbors;
 
 class BoardPiece {
   constructor(row, col) {
-    this.position = [row, col];
+    this.position = {x: row, y: col};
     this.color = null; // change this later
     this.button = null; // left and top styles
   }
@@ -42,64 +44,84 @@ function draw() {
 
 function createBoard() {
   // board can be seen as a 13x17 grid
-  board = [];
-  actualRowWidths = [
+  tempBoard = [];
+  var actualRowWidths = [
     1, 2, 3, 4, 13, 12, 11, 10, 9, 10, 11, 12, 13, 4, 3, 2, 1
   ];
+  var rowOffsets = [
+    6, 5, 5, 4, 0, 0, 1, 1, 2, 1, 1, 0, 0, 4, 5, 5, 6
+  ];
   var currRowWidth;
-  for (var i = 0; i < boardHeight; i++) {
+
+  var actualHeight = 17;
+  var actualWidth = 13;
+  for (var i = 0; i < actualHeight; i++) {
     currRowWidth = actualRowWidths[i];
-    board[i] = []
-    for (var j = 0; j < boardWidth; j++) {
-      if (j < currRowWidth) {
-        board[i][j] = new BoardPiece(i, j);
+    tempBoard[i] = []
+    var rowOffsetY = rowOffsets[i];
+    for (var j = 0; j < actualWidth; j++) {
+      if (j >= rowOffsetY && j < rowOffsetY + currRowWidth) {
+        tempBoard[i][j] = new BoardPiece(i+2, j+2);
         if (i < 4) {
           if (numOfPlayers != 4) {
-            board[i][j].color = Color.RED;
+            tempBoard[i][j].color = Color.RED;
           } else {
-            board[i][j].color = Color.CLOSED;
+            tempBoard[i][j].color = Color.CLOSED;
           }
         } else if (i < 8) {
-          if ((i == 4 && j < 4) || (i == 5 && j < 3) || (i == 6 && j < 2) || (i == 7 && j < 1)) {
+          if ((i == 4 && j < 4) || (i == 5 && j < 3) || (i == 6 && j < 3) || (i == 7 && j < 2)) {
             if (numOfPlayers == 4 || numOfPlayers == 6) {
-              board[i][j].color = Color.BLUE;
+              tempBoard[i][j].color = Color.BLUE;
             } else {
-              board[i][j].color = Color.CLOSED;
+              tempBoard[i][j].color = Color.CLOSED;
             }
-          } else if ((i == 4 || i == 5 || i == 6 || i == 7) && j > 8) {
+          } else if ((i == 4 && j > 8) || (i == 5 && j > 8) || (i == 6 && j > 9) || (i == 7 && j > 9)) {
             if (numOfPlayers == 4 || numOfPlayers == 6) {
-              board[i][j].color = Color.GREEN;
+              tempBoard[i][j].color = Color.GREEN;
             } else {
-              board[i][j].color = Color.CLOSED;
+              tempBoard[i][j].color = Color.CLOSED;
             }
           } else {
-            board[i][j].color = Color.EMPTY;
+            tempBoard[i][j].color = Color.EMPTY;
           }
         } else if (i < 13) {
-          if ((i == 9 && j < 1) || (i == 10 && j < 2) || (i == 11 && j < 3) || (i == 12 && j < 4)) {
+          if ((i == 9 && j < 2) || (i == 10 && j < 3) || (i == 11 && j < 3) || (i == 12 && j < 4)) {
             if (numOfPlayers != 2) {
-              board[i][j].color = Color.YELLOW;
+              tempBoard[i][j].color = Color.YELLOW;
             } else {
-              board[i][j].color = Color.CLOSED;
+              tempBoard[i][j].color = Color.CLOSED;
             }
-          } else if ((i == 9 || i == 10 || i == 11 || i == 12) && j > 8) {
+          } else if ((i == 9 && j > 9) || (i == 10 && j > 9) || (i == 11 && j > 8) || (i == 12 && j > 8)) {
             if (numOfPlayers != 2) {
-              board[i][j].color = Color.BLACK;
+              tempBoard[i][j].color = Color.BLACK;
             } else {
-              board[i][j].color = Color.CLOSED;
+              tempBoard[i][j].color = Color.CLOSED;
             }
           } else {
-            board[i][j].color = Color.EMPTY;
+            tempBoard[i][j].color = Color.EMPTY;
           }
         } else {
           if (numOfPlayers == 2 || numOfPlayers == 6) {
-            board[i][j].color = Color.WHITE;
+            tempBoard[i][j].color = Color.WHITE;
           } else {
-            board[i][j].color = Color.CLOSED;
+            tempBoard[i][j].color = Color.CLOSED;
           }
         }
       } else {
-        board[i][j] = null; // null is good to keep track of neighbors
+        tempBoard[i][j] = null;
+      }
+    }
+  }
+
+  // add border
+  board = [];
+  for (var i = 0; i < boardHeight; i++) {
+    board[i] = [];
+    for (var j = 0; j < boardWidth; j++) {
+      if (j < 2 || i < 2 || i > 18 || j > 14) {
+        board[i][j] = null;
+      } else {
+        board[i][j] = tempBoard[i-2][j-2];
       }
     }
   }
@@ -123,22 +145,24 @@ function drawBoard() {
   ];
 
   // draw the board pieces
-  for (var i = 0; i < boardHeight; i++) {
+  for (var i = 0; i < boardHeight-4; i++) {
     currentOffset[0] = startingPosX - gridOffsets[i];
-    for (var j = 0; j < boardWidth; j++) {
-      if (board[i][j] != null) {
+    for (var j = 0; j < boardWidth-4; j++) {
+      var indexOffsetX = i+2;
+      var indexOffsetY = j+2;
+      if (board[indexOffsetX][indexOffsetY] != null) {
         // Have to offset the buttons based on the position of the canvas
         var newButton = createButton('');
         newButton.id("piece");
-        newButton.style("background-color", board[i][j].color);
-        newButton.style("border-color", board[i][j].color);
-        if (board[i][j].color == myColor) {
+        newButton.style("background-color", board[indexOffsetX][indexOffsetY].color);
+        newButton.style("border-color", board[indexOffsetX][indexOffsetY].color);
+        if (board[indexOffsetX][indexOffsetY].color == myColor) {
           // function that is called when clicking one of the nodes
-          newButton.mousePressed(myPieceSelected.bind(this, {x: i, y: j}));
+          newButton.mousePressed(myPieceSelected.bind(this, {x: indexOffsetX, y: indexOffsetY}));
         }
         newButton.position(currentOffset[0], currentOffset[1]);
         changeButtonPosition(newButton, canvas.position().x, canvas.position().y);
-        board[i][j].button = newButton;
+        board[indexOffsetX][indexOffsetY].button = newButton;
         currentOffset[0] += offsetX;
       }
     }
@@ -146,16 +170,64 @@ function drawBoard() {
   }
 }
 
-function myPieceSelected(pos) { // pos = [i, j] to 2D board array
+function myPieceSelected(pos) {
   if (currSelectedPiece) {
     currSelectedPiece.button.style("background-color", myColor);
+    for (var i = 0; i < currNeighbors.length; i++) {
+      // reset neighbors
+      currNeighbors[i].button.style("background-color", tempNeighborColors[i].background);
+      currNeighbors[i].button.style("border-color", tempNeighborColors[i].border);
+    }
   }
 
   currSelectedPiece = board[pos.x][pos.y];
   board[pos.x][pos.y].button.style("background-color", Color.EMPTY);
 
   // activate all possible neigbhors
+  currNeighbors = getNeighborPieces(currSelectedPiece);
+  tempNeighborColors = [];
+  for (var i = 0; i < currNeighbors.length; i++) {
+    tempNeighborColors.push({ background: currNeighbors[i].button.style("background-color"),
+                              border: currNeighbors[i].button.style("border-color") });
+  }
+  showNeighborPieces(currNeighbors);
+}
 
+function getNeighborPieces(p) {
+  var neighbors = [];
+  var neighborPositions;
+  if (p.position.x % 2  == 0) { // even row
+    var neighborPositions = [ {x: p.position.x, y: p.position.y-1},
+                              {x: p.position.x, y: p.position.y+1},
+                              {x: p.position.x-1, y: p.position.y-1},
+                              {x: p.position.x-1, y: p.position.y},
+                              {x: p.position.x+1, y: p.position.y-1},
+                              {x: p.position.x+1, y: p.position.y},
+                            ];
+  } else {                     // odd row
+    var neighborPositions = [ {x: p.position.x, y: p.position.y-1},
+                              {x: p.position.x, y: p.position.y+1},
+                              {x: p.position.x-1, y: p.position.y+1},
+                              {x: p.position.x-1, y: p.position.y},
+                              {x: p.position.x+1, y: p.position.y+1},
+                              {x: p.position.x+1, y: p.position.y},
+                            ];
+  }
+
+  for (var i = 0; i < neighborPositions.length; i++) {
+    if (board[neighborPositions[i].x][neighborPositions[i].y]) {
+      neighbors.push(board[neighborPositions[i].x][neighborPositions[i].y]);
+    }
+  }
+
+  return neighbors;
+}
+
+function showNeighborPieces(neighbors) {
+  for (var i = 0; i < neighbors.length; i++) {
+    neighbors[i].button.style("background-color", myColor);
+    neighbors[i].button.style("border-color", "#000000");
+  }
 }
 
 function changeButtonPosition(button, offsetX, offsetY) {
