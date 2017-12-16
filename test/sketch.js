@@ -172,12 +172,7 @@ function drawBoard() {
 
 function myPieceSelected(pos) {
   if (currSelectedPiece) {
-    currSelectedPiece.button.style("background-color", myColor);
-    for (var i = 0; i < currNeighbors.length; i++) {
-      // reset neighbors
-      currNeighbors[i].button.style("background-color", tempNeighborColors[i].background);
-      currNeighbors[i].button.style("border-color", tempNeighborColors[i].border);
-    }
+    resetCurrPieceAndNeighors(myColor);
   }
 
   currSelectedPiece = board[pos.x][pos.y];
@@ -216,7 +211,10 @@ function getNeighborPieces(p) {
 
   for (var i = 0; i < neighborPositions.length; i++) {
     if (board[neighborPositions[i].x][neighborPositions[i].y]) {
-      neighbors.push(board[neighborPositions[i].x][neighborPositions[i].y]);
+      if (board[neighborPositions[i].x][neighborPositions[i].y].color == Color.EMPTY) {
+        board[neighborPositions[i].x][neighborPositions[i].y].button.mousePressed(destinationSpotSelected.bind(this, {x: neighborPositions[i].x, y: neighborPositions[i].y}));
+        neighbors.push(board[neighborPositions[i].x][neighborPositions[i].y]);
+      }
     }
   }
 
@@ -228,6 +226,27 @@ function showNeighborPieces(neighbors) {
     neighbors[i].button.style("background-color", myColor);
     neighbors[i].button.style("border-color", "#000000");
   }
+}
+
+function resetCurrPieceAndNeighors(currPieceColor) {
+  currSelectedPiece.color = currPieceColor;
+  currSelectedPiece.button.style("background-color", currPieceColor);
+  currSelectedPiece.button.style("border-color", currPieceColor);
+  currSelectedPiece = null;
+  for (var i = 0; i < currNeighbors.length; i++) {
+    // reset neighbors
+    currNeighbors[i].button.style("background-color", tempNeighborColors[i].background);
+    currNeighbors[i].button.style("border-color", tempNeighborColors[i].border);
+  }
+}
+
+function destinationSpotSelected(pos) {
+  // TODO: if valid
+  currSelectedPiece.button.mousePressed(false);
+  resetCurrPieceAndNeighors(Color.EMPTY);
+  board[pos.x][pos.y].button.style("background-color", myColor);
+  board[pos.x][pos.y].button.style("border-color", myColor);
+  board[pos.x][pos.y].button.mousePressed(myPieceSelected.bind(this, pos));
 }
 
 function changeButtonPosition(button, offsetX, offsetY) {
