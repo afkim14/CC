@@ -179,6 +179,7 @@ function myPieceSelected(pos) {
   board[pos.x][pos.y].button.style("background-color", Color.EMPTY);
 
   // activate all possible neigbhors
+  console.log(currSelectedPiece.position);
   currNeighbors = getNeighborPieces(currSelectedPiece);
   tempNeighborColors = [];
   for (var i = 0; i < currNeighbors.length; i++) {
@@ -192,28 +193,53 @@ function getNeighborPieces(p) {
   var neighbors = [];
   var neighborPositions;
   if (p.position.x % 2  == 0) { // even row
-    var neighborPositions = [ {x: p.position.x, y: p.position.y-1},
-                              {x: p.position.x, y: p.position.y+1},
-                              {x: p.position.x-1, y: p.position.y-1},
-                              {x: p.position.x-1, y: p.position.y},
-                              {x: p.position.x+1, y: p.position.y-1},
-                              {x: p.position.x+1, y: p.position.y},
-                            ];
+    var neighborPositions =         [ {x: p.position.x, y: p.position.y-1},
+                                      {x: p.position.x, y: p.position.y+1},
+                                      {x: p.position.x-1, y: p.position.y-1},
+                                      {x: p.position.x-1, y: p.position.y},
+                                      {x: p.position.x+1, y: p.position.y-1},
+                                      {x: p.position.x+1, y: p.position.y},
+                                    ];
+    var furtherNeighborPositions =  [ {x: p.position.x, y: p.position.y-2},
+                                      {x: p.position.x, y: p.position.y+2},
+                                      {x: p.position.x-2, y: p.position.y-1},
+                                      {x: p.position.x-2, y: p.position.y+1},
+                                      {x: p.position.x+2, y: p.position.y-1},
+                                      {x: p.position.x+2, y: p.position.y+1}
+                                    ];
   } else {                     // odd row
-    var neighborPositions = [ {x: p.position.x, y: p.position.y-1},
-                              {x: p.position.x, y: p.position.y+1},
-                              {x: p.position.x-1, y: p.position.y+1},
-                              {x: p.position.x-1, y: p.position.y},
-                              {x: p.position.x+1, y: p.position.y+1},
-                              {x: p.position.x+1, y: p.position.y},
-                            ];
+    var neighborPositions =         [ {x: p.position.x, y: p.position.y-1},
+                                      {x: p.position.x, y: p.position.y+1},
+                                      {x: p.position.x-1, y: p.position.y+1},
+                                      {x: p.position.x-1, y: p.position.y},
+                                      {x: p.position.x+1, y: p.position.y+1},
+                                      {x: p.position.x+1, y: p.position.y},
+                                    ];
+    var furtherNeighborPositions =  [ {x: p.position.x, y: p.position.y-2},
+                                      {x: p.position.x, y: p.position.y+2},
+                                      {x: p.position.x-2, y: p.position.y+1},
+                                      {x: p.position.x-2, y: p.position.y-1},
+                                      {x: p.position.x+2, y: p.position.y+1},
+                                      {x: p.position.x+2, y: p.position.y-1}
+                                    ];
   }
 
+  // add possible further distance neighbors
+  var allNeighbors = neighborPositions.concat(); // so it doesn't mutate
   for (var i = 0; i < neighborPositions.length; i++) {
-    if (board[neighborPositions[i].x][neighborPositions[i].y]) {
-      if (board[neighborPositions[i].x][neighborPositions[i].y].color == Color.EMPTY) {
-        board[neighborPositions[i].x][neighborPositions[i].y].button.mousePressed(destinationSpotSelected.bind(this, {x: neighborPositions[i].x, y: neighborPositions[i].y}));
-        neighbors.push(board[neighborPositions[i].x][neighborPositions[i].y]);
+    var piece = board[neighborPositions[i].x][neighborPositions[i].y];
+    if (piece) {
+      if (piece.color != Color.EMPTY && piece.color != Color.CLOSED) {
+        allNeighbors.push(furtherNeighborPositions[i]);
+      }
+    }
+  }
+
+  for (var i = 0; i < allNeighbors.length; i++) {
+    if (board[allNeighbors[i].x][allNeighbors[i].y]) {
+      if (board[allNeighbors[i].x][allNeighbors[i].y].color == Color.EMPTY) {
+        board[allNeighbors[i].x][allNeighbors[i].y].button.mousePressed(destinationSpotSelected.bind(this, {x: allNeighbors[i].x, y: allNeighbors[i].y}));
+        neighbors.push(board[allNeighbors[i].x][allNeighbors[i].y]);
       }
     }
   }
@@ -244,6 +270,7 @@ function destinationSpotSelected(pos) {
   // TODO: if valid
   currSelectedPiece.button.mousePressed(false);
   resetCurrPieceAndNeighors(Color.EMPTY);
+  board[pos.x][pos.y].color = myColor;
   board[pos.x][pos.y].button.style("background-color", myColor);
   board[pos.x][pos.y].button.style("border-color", myColor);
   board[pos.x][pos.y].button.mousePressed(myPieceSelected.bind(this, pos));
