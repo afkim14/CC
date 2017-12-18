@@ -74,6 +74,10 @@ module.exports.listen = function(io, socket) {
       var numOfPlayers = Object.keys(rooms[roomid].players).length;
       if (numOfPlayers == 2 || numOfPlayers == 3 || numOfPlayers == 4 || numOfPlayers == 6) {
         // assign colors to the players in the room
+        // [red, white]
+        // [red, yellow, black]
+        // [blue, green, black, yellow]
+        // [red, green, black, white, yellow, blue]
       } else {
         // invalid number of players
       }

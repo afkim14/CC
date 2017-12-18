@@ -50,7 +50,6 @@ socket.on('room message', function(data){
 });
 
 socket.on('get room response', function(data) {
-  console.log("yo");
   rooms = data.rooms;
   state = State.MAIN;
   toggleView();
