@@ -34,6 +34,29 @@ button {
 button:hover {
   cursor: pointer;
 }
+#gametypeDropdown {
+  width: 200px;
+  height: 30px;
+  border-radius: 5px;
+  font-family: montserrat-light;
+}
+#gameCanvas {
+  text-align: center;
+}
+#piece {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  border-style: solid;
+}
+#selectednode {
+  background-color: #eb2f39;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  border-color: #eb2f39;
+  border-style: solid;
+}
 .center_container {
   text-align: center;
 }

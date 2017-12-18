@@ -6,8 +6,8 @@ module.exports = {
     var newUser = new User(username, socketid);
     return newUser;
   },
-  createRoom: function (roomName, owner) {
-    var newRoom = new Room(roomName, owner);
+  createRoom: function (roomName, owner, type) {
+    var newRoom = new Room(roomName, owner, type);
     return newRoom;
   },
 };

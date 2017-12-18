@@ -63,6 +63,11 @@ function toggleView() {
             <p class=\"h1\">Room Creation</p>
             <input type=\"text\" id=\"roomTitle\" placeholder=\"Room Title\"><br>
             <p class=\"h2\" id=\"reply\"></p>
+            <div style=\"margin-bottom: 20px;\">
+              <select id="gametypeDropdown">
+                <option value="CHINESE CHECKERS">Chinese Checkers</option>
+              </select>
+            </div>
             <button id=\"submit\" style=\"width: 130px;\" onClick=\"createRoom()\">Create Room</button>
           </div>
       `;
@@ -77,15 +82,14 @@ function toggleView() {
     case State.LOBBY:
       const lobbyHTML = `
           <div class=\"center_container\">
-            <p class=\"h1\" id="roomName"></p>
+            <p class=\"h1\" id="roomName">` + currentRoom.title + `</p>
+            <p class=\"h2\" id="roomType">` + currentRoom.type + `</p>
             <p class=\"h2\" id="roomName">Players</p>
             <div id=\"members_container\"></div>
-            <button style=\"margin-right: 20px; margin-top: 10px; display: inline-block;\" onClick=\"setupGame()\">Start Game</button>
-            <button style=\"margin-top: 10px; display: inline-block;\" onClick=\"quitRoom()\">Quit Room</button>
+            <div id=\"action_buttons\"></div>
           </div>
       `;
       document.getElementById("content").innerHTML = lobbyHTML;
-      document.getElementById("roomName").innerHTML = currentRoom.title;
       var memberString = "";
       for (var socketid in currentRoom.players) {
         memberString += "<div class=\"user_container\">";
@@ -93,12 +97,33 @@ function toggleView() {
         memberString += "</div>";
       }
       document.getElementById("members_container").innerHTML = memberString;
+
+      var buttonsString = "";
+      if (currentRoom.owner.socketid == socket.io.engine.id) {
+        buttonsString += "<button style=\"margin-right: 20px; margin-top: 10px; display: inline-block;\" onClick=\"setupGame()\">Start Game</button>";
+        buttonsString += "<button style=\"margin-top: 10px; display: inline-block;\" onClick=\"quitRoom()\">Quit Room</button>";
+      } else {
+        buttonsString += "<button style=\"margin-top: 10px; display: inline-block;\" onClick=\"quitRoom()\">Quit Room</button>";
+      }
+      document.getElementById("action_buttons").innerHTML = buttonsString;
       break;
     case State.GAME:
+      // either 2, 3, 4, or 6 players
       const gameHTML = `
-          <div id="gameCanvas" style="text-align: center;"></div>
+          <div id="playersContainer" style="text-align: center; margin: 0 auto; width: `
+                + ((Object.keys(currentRoom.players).length * 200) + (Object.keys(currentRoom.players).length * 10)) +
+          `px;"></div>
+          <div id="gameCanvas" style="text-align: center; margin-top: 80px;"></div>
       `;
+
       document.getElementById("content").innerHTML = gameHTML;
+      var playersContainerString = "<p class=\"h1\" style=\"margin-bottom: 20px;\">Players</p>";
+      for (var socketid in currentRoom.players) {
+        playersContainerString += "<div class=\"user_container\" style=\"float: left; margin: 5px;\">";
+        playersContainerString += "<p class=\"username_text\" style=\"margin: 0 auto;\">" + currentRoom.players[socketid].username + "</p>";
+        playersContainerString += "</div>";
+      }
+      document.getElementById("playersContainer").innerHTML = playersContainerString;
       break;
   }
 }

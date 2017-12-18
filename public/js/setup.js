@@ -10,7 +10,8 @@ function sendUsernameToServer() {
 };
 
 function createRoom() {
-  socket.emit('new room', $('#roomTitle').val());
+  socket.emit('new room', { title: $('#roomTitle').val(),
+                            type: $('#gametypeDropdown').val()})
   return;
 }
 
@@ -49,6 +50,7 @@ socket.on('room message', function(data){
 });
 
 socket.on('get room response', function(data) {
+  console.log("yo");
   rooms = data.rooms;
   state = State.MAIN;
   toggleView();

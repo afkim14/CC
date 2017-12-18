@@ -8,6 +8,7 @@ app.use('/', express.static(__dirname + '/public'));
 
 io.on('connection', function(socket) {
   require('./server/setup').listen(io, socket);
+  require('./server/game').listen(io, socket);
 });
 
 
