@@ -5,18 +5,9 @@ var constrainedCanvasWidth = 800;
 var constrainedCanvasHeight = 800;
 var board;
 var player;
-var Color = {
-  RED : "#EA5C6A",
-  BLUE : "#6DC4E2",
-  GREEN : "#92C570",
-  YELLOW: "#E3DC51",
-  BLACK: "#3F3F3F",
-  WHITE: "#FFFFFF",
-  EMPTY: "#787878",
-  CLOSED: "#646464",
-};
+var Color;
 
-function startCCGame() {
+function startCCGame(allcolors, playercolors) {
   var sketch = function( p ) {
     p5js = p;
     p.setup = function() {
@@ -24,8 +15,8 @@ function startCCGame() {
      canvas.parent('gameCanvas');
      originalCanvasPos = canvas.position();
      p.background(100, 100, 100);
-     player = new Player(Color.RED);
-     board = new Board(6);
+     player = new Player(allcolors[playercolors[socket.io.engine.id]]);
+     board = new Board(playercolors);
     };
 
     p.draw = function() {};

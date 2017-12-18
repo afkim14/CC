@@ -1,9 +1,10 @@
 // NEED: Color, BoardLocation, BoardPiece, constrainedCanvasWidth, constrainedCanvasHeight
 
 class Board {
-  constructor(numOfPlayers) {
+  constructor(playercolors) {
     this.spots = []; // [][] of BoardLocations
-    this.numOfPlayers = numOfPlayers;
+    this.playercolors = playercolors;
+    this.numOfPlayers = Object.keys(playercolors).length;
     this.boardHeight = 21;
     this.boardWidth = 17;
     this.createBoard();
@@ -20,36 +21,48 @@ class Board {
       6, 5, 5, 4, 0, 0, 1, 1, 2, 1, 1, 0, 0, 4, 5, 5, 6
     ];
     var currRowWidth;
-
     var actualHeight = 17;
     var actualWidth = 13;
+    var currPlayerColorIndex = 0;
+    var colorCounts = [0, 0, 0, 0, 0, 0];
     for (var i = 0; i < actualHeight; i++) {
       currRowWidth = actualRowWidths[i];
       tempBoard[i] = []
       var rowOffsetY = rowOffsets[i];
       for (var j = 0; j < actualWidth; j++) {
         if (j >= rowOffsetY && j < rowOffsetY + currRowWidth) {
-          //tempBoard[i][j] = new BoardPiece(i+2, j+2);
           tempBoard[i][j] = new BoardLocation(i+2, j+2);
           if (i < 4) {
             if (this.numOfPlayers != 4) {
-              tempBoard[i][j].homeColor = Color.RED;
-              tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color.RED);
+              if (colorCounts[0] < 10) {
+                tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+                colorCounts[0]++;
+                if (colorCounts[0] == 10) { currPlayerColorIndex++; }
+              }
             } else {
               tempBoard[i][j].homeColor = Color.CLOSED;
             }
           } else if (i < 8) {
             if ((i == 4 && j < 4) || (i == 5 && j < 3) || (i == 6 && j < 3) || (i == 7 && j < 2)) {
               if (this.numOfPlayers == 4 || this.numOfPlayers == 6) {
-                tempBoard[i][j].homeColor = Color.BLUE;
-                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color.BLUE);
+                if (colorCounts[1] < 10) {
+                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+                  colorCounts[1]++;
+                  if (colorCounts[1] == 10) { currPlayerColorIndex++; }
+                }
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
             } else if ((i == 4 && j > 8) || (i == 5 && j > 8) || (i == 6 && j > 9) || (i == 7 && j > 9)) {
               if (this.numOfPlayers == 4 || this.numOfPlayers == 6) {
-                tempBoard[i][j].homeColor = Color.GREEN;
-                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color.GREEN);
+                if (colorCounts[2] < 10) {
+                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+                  colorCounts[2]++;
+                  if (colorCounts[2] == 10) { currPlayerColorIndex++; }
+                }
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
@@ -59,15 +72,23 @@ class Board {
           } else if (i < 13) {
             if ((i == 9 && j < 2) || (i == 10 && j < 3) || (i == 11 && j < 3) || (i == 12 && j < 4)) {
               if (this.numOfPlayers != 2) {
-                tempBoard[i][j].homeColor = Color.YELLOW;
-                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color.YELLOW);
+                if (colorCounts[3] < 10) {
+                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+                  colorCounts[3]++;
+                  if (colorCounts[3] == 10) { currPlayerColorIndex++; }
+                }
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
             } else if ((i == 9 && j > 9) || (i == 10 && j > 9) || (i == 11 && j > 8) || (i == 12 && j > 8)) {
               if (this.numOfPlayers != 2) {
-                tempBoard[i][j].homeColor = Color.BLACK;
-                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color.BLACK);
+                if (colorCounts[4] < 10) {
+                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+                  colorCounts[4]++;
+                  if (colorCounts[4] == 10) { currPlayerColorIndex++; }
+                }
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
@@ -76,8 +97,12 @@ class Board {
             }
           } else {
             if (this.numOfPlayers == 2 || this.numOfPlayers == 6) {
-              tempBoard[i][j].homeColor = Color.WHITE;
-              tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color.WHITE);
+              if (colorCounts[5] < 10) {
+                tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+                colorCounts[5]++;
+                if (colorCounts[5] == 10) { currPlayerColorIndex++; }
+              }
             } else {
               tempBoard[i][j].homeColor = Color.CLOSED;
             }
@@ -126,6 +151,7 @@ class Board {
         if (this.spots[indexOffsetX][indexOffsetY] != null) {
           // Have to offset the buttons based on the position of the canvas
           var newButton = p5js.createButton('');
+          newButton.parent('gameButtons');
           newButton.id("piece");
           newButton.position(currentOffset[0], currentOffset[1]);
           changeButtonPosition(newButton, canvas.position().x, canvas.position().y);

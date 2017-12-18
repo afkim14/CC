@@ -4,17 +4,19 @@
 
 */
 
-function setupGame() {
+function sendGameRequest() {
   // TODO: add interaction with server to ask if it is valid to start a gameHTML
   socket.emit('request new game', currentRoom.id);
-
-  switchToState(4); // State.GAME
-
-  // if chinesecheckers
-  startCCGame();
 }
-/*
-socket.on('respond new game', data) {
 
-}
-*/
+socket.on('respond new game', function(data) {
+  if (data.playercolors) {
+    switchToState(4); // State.Game
+    if (currentRoom.type == "CHINESE CHECKERS") {
+      Color = data.allcolors;
+      startCCGame(data.allcolors, data.playercolors);
+    }
+  } else {
+    document.getElementById("reply").innerHTML = data.error;
+  }
+});

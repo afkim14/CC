@@ -87,6 +87,7 @@ function toggleView() {
             <p class=\"h2\" id="roomName">Players</p>
             <div id=\"members_container\"></div>
             <div id=\"action_buttons\"></div>
+            <p class=\"h2\" id=\"reply\"></p>
           </div>
       `;
       document.getElementById("content").innerHTML = lobbyHTML;
@@ -100,7 +101,7 @@ function toggleView() {
 
       var buttonsString = "";
       if (currentRoom.owner.socketid == socket.io.engine.id) {
-        buttonsString += "<button style=\"margin-right: 20px; margin-top: 10px; display: inline-block;\" onClick=\"setupGame()\">Start Game</button>";
+        buttonsString += "<button style=\"margin-right: 20px; margin-top: 10px; display: inline-block;\" onClick=\"sendGameRequest()\">Start Game</button>";
         buttonsString += "<button style=\"margin-top: 10px; display: inline-block;\" onClick=\"quitRoom()\">Quit Room</button>";
       } else {
         buttonsString += "<button style=\"margin-top: 10px; display: inline-block;\" onClick=\"quitRoom()\">Quit Room</button>";
@@ -114,6 +115,7 @@ function toggleView() {
                 + ((Object.keys(currentRoom.players).length * 200) + (Object.keys(currentRoom.players).length * 10)) +
           `px;"></div>
           <div id="gameCanvas" style="text-align: center; margin-top: 80px;"></div>
+          <div id="gameButtons"></div>
       `;
 
       document.getElementById("content").innerHTML = gameHTML;
