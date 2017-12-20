@@ -5,6 +5,7 @@ class Board {
     this.spots = []; // [][] of BoardLocations
     this.playercolors = playercolors;
     this.numOfPlayers = Object.keys(playercolors).length;
+    this.boardHomeAreas = [[], [], [], [], [], []];
     this.boardHeight = 21;
     this.boardWidth = 17;
     this.createBoard();
@@ -23,8 +24,6 @@ class Board {
     var currRowWidth;
     var actualHeight = 17;
     var actualWidth = 13;
-    var currPlayerColorIndex = 0;
-    var colorCounts = [0, 0, 0, 0, 0, 0];
     for (var i = 0; i < actualHeight; i++) {
       currRowWidth = actualRowWidths[i];
       tempBoard[i] = []
@@ -34,35 +33,20 @@ class Board {
           tempBoard[i][j] = new BoardLocation(i+2, j+2);
           if (i < 4) {
             if (this.numOfPlayers != 4) {
-              if (colorCounts[0] < 10) {
-                tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
-                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
-                colorCounts[0]++;
-                if (colorCounts[0] == 10) { currPlayerColorIndex++; }
-              }
+              this.boardHomeAreas[0].push(tempBoard[i][j]);
             } else {
               tempBoard[i][j].homeColor = Color.CLOSED;
             }
           } else if (i < 8) {
             if ((i == 4 && j < 4) || (i == 5 && j < 3) || (i == 6 && j < 3) || (i == 7 && j < 2)) {
               if (this.numOfPlayers == 4 || this.numOfPlayers == 6) {
-                if (colorCounts[1] < 10) {
-                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
-                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
-                  colorCounts[1]++;
-                  if (colorCounts[1] == 10) { currPlayerColorIndex++; }
-                }
+                this.boardHomeAreas[1].push(tempBoard[i][j]);
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
             } else if ((i == 4 && j > 8) || (i == 5 && j > 8) || (i == 6 && j > 9) || (i == 7 && j > 9)) {
               if (this.numOfPlayers == 4 || this.numOfPlayers == 6) {
-                if (colorCounts[2] < 10) {
-                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
-                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
-                  colorCounts[2]++;
-                  if (colorCounts[2] == 10) { currPlayerColorIndex++; }
-                }
+                this.boardHomeAreas[2].push(tempBoard[i][j]);
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
@@ -72,23 +56,13 @@ class Board {
           } else if (i < 13) {
             if ((i == 9 && j < 2) || (i == 10 && j < 3) || (i == 11 && j < 3) || (i == 12 && j < 4)) {
               if (this.numOfPlayers != 2) {
-                if (colorCounts[3] < 10) {
-                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
-                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
-                  colorCounts[3]++;
-                  if (colorCounts[3] == 10) { currPlayerColorIndex++; }
-                }
+                this.boardHomeAreas[3].push(tempBoard[i][j]);
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
             } else if ((i == 9 && j > 9) || (i == 10 && j > 9) || (i == 11 && j > 8) || (i == 12 && j > 8)) {
               if (this.numOfPlayers != 2) {
-                if (colorCounts[4] < 10) {
-                  tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
-                  tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
-                  colorCounts[4]++;
-                  if (colorCounts[4] == 10) { currPlayerColorIndex++; }
-                }
+                this.boardHomeAreas[4].push(tempBoard[i][j]);
               } else {
                 tempBoard[i][j].homeColor = Color.CLOSED;
               }
@@ -97,12 +71,7 @@ class Board {
             }
           } else {
             if (this.numOfPlayers == 2 || this.numOfPlayers == 6) {
-              if (colorCounts[5] < 10) {
-                tempBoard[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
-                tempBoard[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
-                colorCounts[5]++;
-                if (colorCounts[5] == 10) { currPlayerColorIndex++; }
-              }
+              this.boardHomeAreas[5].push(tempBoard[i][j]);
             } else {
               tempBoard[i][j].homeColor = Color.CLOSED;
             }
@@ -110,6 +79,18 @@ class Board {
         } else {
           tempBoard[i][j] = null;
         }
+      }
+    }
+
+    // add color
+    var currPlayerColorIndex = 0;
+    for (var i = 0; i < this.boardHomeAreas.length; i++) {
+      if (this.boardHomeAreas[i].length > 0) {
+        for (var j = 0; j < this.boardHomeAreas[i].length; j++) {
+          this.boardHomeAreas[i][j].homeColor = Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]];
+          this.boardHomeAreas[i][j].boardPiece = new BoardPiece(i+2, j+2, Color[this.playercolors[Object.keys(this.playercolors)[currPlayerColorIndex]]]);
+        }
+        currPlayerColorIndex++;
       }
     }
 
@@ -178,6 +159,24 @@ class Board {
             }
           }
         }
+      }
+    }
+  }
+
+  checkColorDone(color) {
+    for (var i = 0; i < this.boardHomeAreas.length; i++) {
+      if (this.boardHomeAreas[i][0].homeColor == color) {
+        var oppositeHomeArea = this.boardHomeAreas[this.boardHomeAreas.length - (i+1)];
+        for (var j = 0; j < this.oppositeHomeArea.length; j++) {
+          if (this.oppositeHomeArea[j].boardPiece) {
+            if (this.oppositeHomeArea[j].boardPiece.color != color) {
+              return false;
+            }
+          } else {
+            return false;
+          }
+        }
+        return true;
       }
     }
   }
