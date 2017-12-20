@@ -36,7 +36,8 @@ class BoardLocation {
 
   destinationSpotSelected(pos) { // CANNOT USE THIS INSIDE BECAUSE IT IS ATTATCHED TO A BUTTON OUTSIDE OF CLASS
     // TODO: if valid
-    player.currSelectedSpot.moveBoardPiece(pos);
+    // player.currSelectedSpot.moveBoardPiece(pos);
+    player.currSelectedSpot.sendMovePieceServerRequest(pos);
     player.resetCurrPieceAndNeighbors();
     board.setClickability();
   }
@@ -105,6 +106,16 @@ class BoardLocation {
       neighbors[i].button.style("background-color", player.color);
       neighbors[i].button.style("border-color", "#000000");
     }
+  }
+
+  sendMovePieceServerRequest(newPos) {
+    // I think node puts this class inside index.html? So we can use currentroom and socket here, but should probs change later.
+    var moveData = {
+      roomId: currentRoom.id,
+      position: newPos,
+      boardLocation: this.position
+    }
+    socket.emit('move piece', moveData);
   }
 
   moveBoardPiece(newPos) {

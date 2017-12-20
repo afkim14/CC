@@ -20,3 +20,8 @@ socket.on('respond new game', function(data) {
     document.getElementById("reply").innerHTML = data.error;
   }
 });
+
+socket.on('piece moved', function(response) {
+  console.log("piece moved response");
+  board.spots[response.piecePosition.x][response.piecePosition.y].moveBoardPiece(response.newPosition);
+});

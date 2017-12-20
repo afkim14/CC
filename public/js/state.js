@@ -126,6 +126,9 @@ function toggleView() {
         playersContainerString += "</div>";
       }
       document.getElementById("playersContainer").innerHTML = playersContainerString;
+      // document.getElementById("piece").addEventListener("click", function(){
+      //   console.log("clicked piece");
+      // });
       break;
   }
 }
