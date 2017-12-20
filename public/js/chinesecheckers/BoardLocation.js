@@ -39,7 +39,6 @@ class BoardLocation {
     // player.currSelectedSpot.moveBoardPiece(pos);
     player.currSelectedSpot.sendMovePieceServerRequest(pos);
     player.resetCurrPieceAndNeighbors();
-    board.setClickability();
   }
 
   getValidNeighbors() {
