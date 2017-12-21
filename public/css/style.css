@@ -77,14 +77,14 @@ button:hover {
   border-radius: 10px;
   padding: 10px;
   margin: 0 auto;
-  margin-top: 10px;
+  margin-top: 40px;
 }
 .room_info_container {
   position: relative;
   margin-top: 15px;
 }
 .room_title {
-  font-family: montserrat-light;
+  font-family: montserrat-regular;
   font-size: 20px;
   color: white;
   float: left;
@@ -96,12 +96,30 @@ button:hover {
   position: absolute;
   left: 0;
   top: 0;
+  font-family: montserrat-light;
+  color: #3F3F3F;
 }
 .room_capacity {
-
   position: absolute;
   right: 0;
   top: 0;
+  font-family: montserrat-light;
+  color: #3F3F3F;
+}
+.roomtype_container {
+  margin: 0 auto;
+  border-radius: 10px;
+  background-color: #ED6D65;
+  width: 300px;
+  height: 40px;
+  margin-top: -20px;
+}
+.roomtype_text {
+  font-family: montserrat-regular;
+  font-size: 15px;
+  padding-top: 12px;
+  color: white;
+  margin: 0 auto;
 }
 .user_container {
   background-color: #67BFAA;

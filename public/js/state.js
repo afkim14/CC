@@ -36,7 +36,8 @@ function toggleView() {
       const mainHTML = `
           <div class=\"center_container\">
             <p class=\"h1\">Main Page</p>
-            <button style=\"width: 200px;\" onClick=\"switchToState(2)\">Create Room</button>
+            <button style=\"width: 200px; margin-right: 20px; display: inline-block;\" onClick=\"switchToState(2)\">Create Room</button>
+            <button style=\"width: 130px; display: inline-block;\" onClick=\"getRooms()\">Refresh</button>
             <div id="roomsContainer"></div>
           </div>
       `;
@@ -51,6 +52,10 @@ function toggleView() {
           roomString += "<p class=\"room_capacity\">" + "(" + Object.keys(rooms[key].players).length + "/6" + ")" + " players" + "</p>"
                       + "<p class=\"room_owner\">created by " + rooms[key].owner.username + ".</p>";
           roomString += "</div>"
+          roomString += "</div>";
+
+          roomString += "<div class=\"roomtype_container\">";
+          roomString += "<p class=\"roomtype_text\">" + rooms[key].type + "</p>";
           roomString += "</div>";
         }
       }
@@ -121,8 +126,8 @@ function toggleView() {
       document.getElementById("content").innerHTML = gameHTML;
       var playersContainerString = "<p class=\"h1\" style=\"margin-bottom: 20px;\">Players</p>";
       for (var socketid in currentRoom.players) {
-        playersContainerString += "<div class=\"user_container\" style=\"float: left; margin: 5px;\">";
-        playersContainerString += "<p class=\"username_text\" style=\"margin: 0 auto;\">" + currentRoom.players[socketid].username + "</p>";
+        playersContainerString += "<div id=\"user_container_" + socketid + "\" class=\"user_container\" style=\"float: left; margin: 5px;\">";
+        playersContainerString += "<p id=\"username_text_" + socketid + "\" class=\"username_text\" style=\"margin: 0 auto;\">" + currentRoom.players[socketid].username + "</p>";
         playersContainerString += "</div>";
       }
       document.getElementById("playersContainer").innerHTML = playersContainerString;
