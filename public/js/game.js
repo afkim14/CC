@@ -12,6 +12,12 @@ function sendGameRequest() {
 socket.on('respond new game', function(data) {
   if (data.playercolors) {
     switchToState(4); // State.Game
+    for (var socketid in data.playercolors) {
+      document.getElementById("user_container_" + socketid).style.backgroundColor = data.allcolors[data.playercolors[socketid]];
+      if (data.playercolors[socketid] == "WHITE") {
+        document.getElementById("username_text_" + socketid).style.color = "#000000";
+      }
+    }
     if (currentRoom.type == "CHINESE CHECKERS") {
       Color = data.allcolors;
       startCCGame(data.allcolors, data.playercolors);

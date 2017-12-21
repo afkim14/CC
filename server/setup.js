@@ -8,7 +8,7 @@ var rooms = {};
 
 module.exports.listen = function(io, socket) {
   socket.on('new user', function(username) {
-    if (username.length <= 10) { // placeholder condition for now
+    if (username.length <= 15) { // placeholder condition for now
       var newUser = helpers.createUser(username, socket.id);
       users[socket.id] = newUser;
       socket.emit('login response', {user: newUser});
@@ -19,7 +19,7 @@ module.exports.listen = function(io, socket) {
   });
 
   socket.on('new room', function(roomInfo) {
-    if (roomInfo.title.length <= 10) {
+    if (roomInfo.title.length <= 20) {
       var newRoom = helpers.createRoom(roomInfo.title, users[socket.id], roomInfo.type);
       rooms[newRoom.id] = newRoom;
       socket.emit('room response', {room: newRoom});
@@ -77,7 +77,7 @@ module.exports.listen = function(io, socket) {
         BLUE : "#6DC4E2",
         GREEN : "#92C570",
         YELLOW: "#E3DC51",
-        BLACK: "#3F3F3F",
+        BLACK: "#2C2C2C",
         WHITE: "#FFFFFF",
         EMPTY: "#787878",
         CLOSED: "#646464",
