@@ -17,28 +17,31 @@ class BoardLocation {
     }
   }
 
-  setClickedColor() {
-    this.button.style("background-color", Color.EMPTY);
+  setClickedColor(clicked) {
+    clicked ? this.button.style("background-color", Color.EMPTY) : this.button.style("background-color", player.color);
   }
 
   spotSelected(pos) { // CANNOT USE (THIS) INSIDE BECAUSE IT IS ATTATCHED TO A BUTTON OUTSIDE OF CLASS
     if (player.currSelectedSpot) {
       player.resetCurrPieceAndNeighbors();
     }
-
     // new current selected piece
     player.currSelectedSpot = board.spots[pos.x][pos.y];
-    player.currSelectedSpot.setClickedColor();
-    // activate all possible neigbhors
-    player.currNeighbors = player.currSelectedSpot.getValidNeighbors();
-    player.currSelectedSpot.showNeighborPieces(player.currNeighbors);
+    player.currSelectedSpot.setClickedColor(player.turn);
+    // activate all possible neigbhors only on player's turn
+    if (player.turn) {
+      player.currNeighbors = player.currSelectedSpot.getValidNeighbors();
+      player.currSelectedSpot.showNeighborPieces(player.currNeighbors);
+    } else {
+      if (!player.turn) player.currSelectedSpot = null;
+    }
   }
 
   destinationSpotSelected(pos) { // CANNOT USE THIS INSIDE BECAUSE IT IS ATTATCHED TO A BUTTON OUTSIDE OF CLASS
-    // TODO: if valid
-    // player.currSelectedSpot.moveBoardPiece(pos);
-    player.currSelectedSpot.sendMovePieceServerRequest(pos);
-    player.resetCurrPieceAndNeighbors();
+    if (player.turn) {
+      player.currSelectedSpot.sendMovePieceServerRequest(pos);
+      player.resetCurrPieceAndNeighbors();
+    }
   }
 
   getValidNeighbors() {
@@ -122,5 +125,13 @@ class BoardLocation {
     board.spots[newPos.x][newPos.y].setColor();
     this.boardPiece = null;
     this.setColor();
+    var endTurnRequest = {
+      roomId: currentRoom.id,
+      color: board.spots[newPos.x][newPos.y].boardPiece.color
+    }
+    if (board.spots[newPos.x][newPos.y].boardPiece.color == player.color) {
+      player.turn = false;
+      socket.emit('end turn', endTurnRequest);
+    }
   }
 }

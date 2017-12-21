@@ -22,7 +22,12 @@ socket.on('respond new game', function(data) {
 });
 
 socket.on('piece moved', function(response) {
-  console.log("piece moved response");
   board.spots[response.piecePosition.x][response.piecePosition.y].moveBoardPiece(response.newPosition);
   board.setClickability();
+});
+
+socket.on('your turn', function(response) {
+  if (player.color == response.color) {
+    player.turn = true;
+  }
 });

@@ -3,6 +3,7 @@ class Player {
     this.color = color;
     this.currSelectedSpot = null;
     this.currNeighbors = null;
+    this.turn = false;
   }
 
   resetCurrPieceAndNeighbors() {
