@@ -30,7 +30,7 @@ class BoardLocation {
     player.currSelectedSpot.setClickedColor(player.turn);
     // activate all possible neigbhors only on player's turn
     if (player.turn) {
-      player.currNeighbors = player.currSelectedSpot.getValidNeighbors();
+      player.currNeighbors = player.currSelectedSpot.getValidNeighbors(0, null);
       player.currSelectedSpot.showNeighborPieces(player.currNeighbors);
     } else {
       if (!player.turn) player.currSelectedSpot = null;
@@ -44,7 +44,7 @@ class BoardLocation {
     }
   }
 
-  getValidNeighbors() {
+  getValidNeighbors(depth, origin) {
     var neighbors = [];
     var neighborPositions;
     if (this.position.x % 2  == 0) { // even row
@@ -79,25 +79,30 @@ class BoardLocation {
                                       ];
     }
 
-    // add possible further distance neighbors if applicable
-    var allNeighbors = neighborPositions.concat(); // so it doesn't mutate
+    var validFurtherNeighbors = [];
     for (var i = 0; i < neighborPositions.length; i++) {
       var loc = board.spots[neighborPositions[i].x][neighborPositions[i].y];
       if (loc) {
         if (loc.boardPiece) {
-          allNeighbors.push(furtherNeighborPositions[i]);
+          var furtherLoc = board.spots[furtherNeighborPositions[i].x][furtherNeighborPositions[i].y];
+          if (furtherLoc) {
+            if (furtherLoc != origin && furtherLoc.boardPiece == null) {
+              furtherLoc.button.mousePressed(this.destinationSpotSelected.bind(this, {x: furtherNeighborPositions[i].x, y: furtherNeighborPositions[i].y}));
+              validFurtherNeighbors.push(furtherLoc);
+              neighbors.push(furtherLoc);
+            }
+          }
+        } else {
+          if (depth == 0) { // only want to add adjacent neighbors for first layer
+            loc.button.mousePressed(this.destinationSpotSelected.bind(this, {x: neighborPositions[i].x, y: neighborPositions[i].y}));
+            neighbors.push(loc);
+          }
         }
       }
     }
 
-    // filter
-    for (var i = 0; i < allNeighbors.length; i++) {
-      if (board.spots[allNeighbors[i].x][allNeighbors[i].y]) {
-        if (board.spots[allNeighbors[i].x][allNeighbors[i].y].boardPiece == null) {
-          board.spots[allNeighbors[i].x][allNeighbors[i].y].button.mousePressed(this.destinationSpotSelected.bind(this, {x: allNeighbors[i].x, y: allNeighbors[i].y}));
-          neighbors.push(board.spots[allNeighbors[i].x][allNeighbors[i].y]);
-        }
-      }
+    for (var j = 0; j < validFurtherNeighbors.length; j++) {
+      neighbors = neighbors.concat(validFurtherNeighbors[j].getValidNeighbors(depth+1, this));
     }
 
     return neighbors;
