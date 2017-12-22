@@ -6,6 +6,7 @@ class Room {
     this.players = {};
     this.players[owner.socketid] = owner;
     this.id = (+ new Date()).toString() + '/' + owner.socketid.toString();
+    this.turnIndex = 0;
   }
 
 }

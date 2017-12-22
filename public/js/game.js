@@ -18,6 +18,8 @@ socket.on('respond new game', function(data) {
         document.getElementById("username_text_" + socketid).style.color = "#000000";
       }
     }
+
+    socket.emit('request start turn', {room: currentRoom});
     if (currentRoom.type == "CHINESE CHECKERS") {
       Color = data.allcolors;
       startCCGame(data.allcolors, data.playercolors);

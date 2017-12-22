@@ -1,6 +1,4 @@
-var players = [];
-var turnIndex = 0;
-var numOfPlayers = 0;
+var gameRooms = {};
 var allColors = [
   "#EA5C6A", // RED
   "#6DC4E2", // BLUE
@@ -13,21 +11,12 @@ var allColors = [
 ];
 
 module.exports.listen = function(io, socket) {
-
-  socket.on('request new game', function(data) {
-    var roster = io.sockets.adapter.rooms[data];
-    for (var socketId in roster.sockets) {
-      var player = {
-        socketId: socketId,
-        color: allColors[numOfPlayers]
-      }
-      players.push(player);
-      numOfPlayers++;
-    }
+  socket.on('request start turn', function(data) {
+    gameRooms[data.room.id] = data.room;
     var turnResponse = {
-      color: allColors[turnIndex]
+      color: allColors[data.room.turnIndex]
     }
-    io.sockets.connected[players[turnIndex].socketId].emit("your turn", turnResponse);
+    io.sockets.connected[data.room.players[Object.keys(data.room.players)[data.room.turnIndex]].socketid].emit("your turn", turnResponse);
   });
 
   socket.on('move piece', function(data) {
@@ -39,10 +28,11 @@ module.exports.listen = function(io, socket) {
   });
 
   socket.on('end turn', function(data) {
-    turnIndex = (turnIndex + 1) % numOfPlayers;
+    var room = gameRooms[data.roomId];
+    room.turnIndex = (room.turnIndex + 1) % Object.keys(room.players).length;
     var turnResponse = {
-      color: allColors[turnIndex]
+      color: allColors[room.turnIndex]
     }
-    io.sockets.connected[players[turnIndex].socketId].emit("your turn", turnResponse);
+    io.sockets.connected[room.players[Object.keys(room.players)[room.turnIndex]].socketid].emit("your turn", turnResponse);
   });
 }

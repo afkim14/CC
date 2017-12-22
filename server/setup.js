@@ -52,6 +52,7 @@ module.exports.listen = function(io, socket) {
   socket.on('quit room', function(roomid) {
     if (rooms[roomid]) {
       delete rooms[roomid].players[socket.id];
+      rooms[roomid].turnIndex = 0; // reset if there was a game going on
       socket.leave(roomid);
 
       // If no one else left in the room
@@ -117,6 +118,7 @@ module.exports.listen = function(io, socket) {
     for (var roomid in rooms) {
       if (socket.id in rooms[roomid].players) {
         delete rooms[roomid].players[socket.id];
+        rooms[roomid].turnIndex = 0; // reset if there was a game going on
         socket.leave(roomid);
 
         // If no one else left in the room
