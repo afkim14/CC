@@ -164,12 +164,18 @@ class Board {
   }
 
   checkColorDone(color) {
+    console.log("check color done");
     for (var i = 0; i < this.boardHomeAreas.length; i++) {
+      console.log(i);
+      console.log(this.boardHomeAreas[i]);
+      if (this.boardHomeAreas[i].length == 0) {
+        continue;
+      }
       if (this.boardHomeAreas[i][0].homeColor == color) {
         var oppositeHomeArea = this.boardHomeAreas[this.boardHomeAreas.length - (i+1)];
-        for (var j = 0; j < this.oppositeHomeArea.length; j++) {
-          if (this.oppositeHomeArea[j].boardPiece) {
-            if (this.oppositeHomeArea[j].boardPiece.color != color) {
+        for (var j = 0; j < oppositeHomeArea.length; j++) {
+          if (oppositeHomeArea[j].boardPiece) {
+            if (oppositeHomeArea[j].boardPiece.color != color) {
               return false;
             }
           } else {

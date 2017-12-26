@@ -138,5 +138,7 @@ class BoardLocation {
       player.turn = false;
       socket.emit('end turn', endTurnRequest);
     }
+    var x = board.checkColorDone(player.color);
+    console.log(x);
   }
 }
