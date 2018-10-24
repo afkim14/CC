@@ -18,10 +18,10 @@ brew install node
 
 Step by step instructions to get it running.
 
-First, run the node server in /server.
+First, run the node server.
 
 ```
-node index.js
+node server.js
 ```
 
 Then access the server (either localhost or specified ip address in your browser
